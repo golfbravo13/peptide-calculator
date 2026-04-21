@@ -1,7 +1,7 @@
 // ─── PILL DEFINITIONS ──────────────────────────────────────────────────
 const DOSE_OPTS     = [0.1, 0.25, 0.5, 1, 2, 2.5, 5, 7.5, 10, 12.5, 15];  // mg
-const STRENGTH_OPTS = [1, 5, 10, 15, 20, 50];                               // mg (vial size)
-const WATER_OPTS    = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0];                      // mL
+const STRENGTH_OPTS = [1, 5, 10, 15, 20, 50, 70];                           // mg (vial size)
+const WATER_OPTS    = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 10.0];     // mL
 
 // State
 const state = { dose: null, strength: null, water: null };
@@ -19,10 +19,8 @@ buildPills('strength-pills', STRENGTH_OPTS, 'strength', 'mg');
 buildPills('water-pills',    WATER_OPTS,    'water',    'mL');
 
 function selectPill(key, val, btn) {
-  // Clear custom input
   const customMap = { dose: 'dose-custom', strength: 'strength-custom', water: 'water-custom' };
   document.getElementById(customMap[key]).value = '';
-  // Deactivate siblings
   btn.closest('.pill-row').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   state[key] = val;
@@ -57,7 +55,6 @@ function calcReverse() {
 
 function selectCustom(key, rawVal) {
   const val = parseFloat(rawVal);
-  // Deactivate all pills in that group
   const pillRowMap = { dose: 'dose-pills', strength: 'strength-pills', water: 'water-pills' };
   document.getElementById(pillRowMap[key]).querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   state[key] = isNaN(val) || val <= 0 ? null : val;
@@ -71,9 +68,9 @@ function calculate() {
 
   if (!dose || !strength || !water) { resEl.style.display = 'none'; return; }
 
-  const concMgMl   = strength / water;           // mg/mL
-  const volMl      = dose / concMgMl;            // mL needed for one dose
-  const units      = volMl * 100;                // U-100: 1 unit = 0.01 mL
+  const concMgMl   = strength / water;
+  const volMl      = dose / concMgMl;
+  const units      = volMl * 100;
   const dosesTotal = Math.floor(strength / dose);
 
   resEl.style.display = 'block';
@@ -133,22 +130,23 @@ function drawSyringe(targetUnits, prefix) {
 // ─── PEPTIDE PRESETS ──────────────────────────────────────────────────
 const PRESETS = [
   // ── Primary / Most Used ──
-  { name:"Retatrutide",   full:"Retatrutide (RETA) — Triple Agonist",       type:"GLP-1/GIP/Glucagon",         vial:10, water:10, dose:0.5,  doseRange:"0.5–12 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
-  { name:"GLOW Stack",    full:"BPC-157 + TB-500 + GHK-Cu Blend",           type:"Healing/Skin/Recovery Blend",vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Large 70 mg vial — adjust water volume to achieve your preferred concentration." },
-  { name:"Wolverine Stack",full:"BPC-157 + TB-500 Blend",                   type:"Healing/Recovery Blend",     vial:20, water:4,  dose:1.0,  doseRange:"1 mg",           freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 4 mL BAC water gives 5 mg/mL — 1 mg dose = 20 units on a U-100 syringe." },
-  { name:"Tirzepatide",   full:"Tirzepatide (GIP/GLP-1)",                   type:"GLP-1/GIP / Metabolic",      vial:5,  water:10, dose:2.5,  doseRange:"2.5–15 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
-  { name:"PT-141",        full:"PT-141 (Bremelanotide)",                    type:"Sexual Health",               vial:10, water:10, dose:0.5,  doseRange:"0.5–2 mg",       freq:"As needed",          route:"Subcutaneous",          storage:"Refrigerate after reconstitution", notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
-  { name:"Melanotan II",  full:"Melanotan II",                               type:"Tanning/Melanocortin",        vial:10, water:10, dose:0.25, doseRange:"0.25–1 mg",      freq:"Daily (loading)",    route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
-  { name:"GHK-Cu",        full:"GHK-Cu (Copper Peptide)",                   type:"Skin/Anti-aging/Collagen",    vial:50, water:10, dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous or topical",storage:"Refrigerate; use within 4 weeks",  notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
-  { name:"MOTS-C",        full:"MOTS-C (Mitochondrial-derived Peptide)",    type:"Metabolic/Longevity",         vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",  freq:"Once daily",         route:"Subcutaneous",          storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
-  { name:"AOD-9604",      full:"AOD-9604 (Tyr-hGH Fragment 177–191)",       type:"Fat Metabolism/Lipolysis",    vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",    freq:"Once daily (fasted)", route:"Subcutaneous",          storage:"Refrigerate; use within 30–45 days",  notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
-  { name:"SLU-PP-332",    full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",        type:"Exercise Mimetic/Metabolic",  vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",  freq:"1–2x daily",         route:"Subcutaneous",          storage:"Refrigerate; use within 30 days",  notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
+  { name:"Retatrutide",    full:"Retatrutide (RETA) — Triple Agonist",        type:"GLP-1/GIP/Glucagon",          vial:10, water:10, dose:0.5,  doseRange:"0.5–12 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
+  { name:"GLOW Stack",     full:"BPC-157 + TB-500 + GHK-Cu Blend",            type:"Healing/Skin/Recovery Blend", vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL of BAC water — the BAC water significantly reduces the sting on injection compared to sterile water." },
+  { name:"Wolverine Stack", full:"BPC-157 + TB-500 Blend",                    type:"Healing/Recovery Blend",      vial:20, water:4,  dose:1.0,  doseRange:"1 mg",            freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 4 mL BAC water gives 5 mg/mL — 1 mg dose = 20 units on a U-100 syringe." },
+  { name:"Tirzepatide",    full:"Tirzepatide (GIP/GLP-1)",                    type:"GLP-1/GIP / Metabolic",       vial:5,  water:10, dose:2.5,  doseRange:"2.5–15 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
+  { name:"PT-141",         full:"PT-141 (Bremelanotide)",                     type:"Sexual Health",                vial:10, water:10, dose:0.5,  doseRange:"0.5–2 mg",        freq:"As needed",           route:"Subcutaneous",           storage:"Refrigerate after reconstitution",             notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
+  { name:"Melanotan II",   full:"Melanotan II",                                type:"Tanning/Melanocortin",         vial:10, water:10, dose:0.25, doseRange:"0.25–1 mg",       freq:"Daily (loading)",     route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
+  { name:"GHK-Cu",         full:"GHK-Cu (Copper Peptide)",                    type:"Skin/Anti-aging/Collagen",     vial:50, water:10, dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous or topical", storage:"Refrigerate; use within 4 weeks",              notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
+  { name:"MOTS-C",         full:"MOTS-C (Mitochondrial-derived Peptide)",     type:"Metabolic/Longevity",          vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",   freq:"Once daily",          route:"Subcutaneous",           storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
+  { name:"AOD-9604",       full:"AOD-9604 (Tyr-hGH Fragment 177–191)",        type:"Fat Metabolism/Lipolysis",     vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",     freq:"Once daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 30–45 days",           notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
+  { name:"SLU-PP-332",     full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",         type:"Exercise Mimetic/Metabolic",   vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",   freq:"1–2x daily",          route:"Subcutaneous",           storage:"Refrigerate; use within 30 days",              notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
   // ── Others ──
-  { name:"BPC-157",       full:"Body Protection Compound 157",              type:"Healing/Recovery",            vial:5,  water:2,  dose:0.25, doseRange:"0.25–0.5 mg",   freq:"1–2x daily",         route:"Subcutaneous or IM",    storage:"Refrigerate; use within 4 weeks",  notes:"Often used for gut health, tendon and ligament repair." },
-  { name:"TB-500",        full:"Thymosin Beta-4",                           type:"Recovery/Anti-inflammatory",  vial:5,  water:2,  dose:2.0,  doseRange:"2–2.5 mg",       freq:"2x weekly (loading)",route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
-  { name:"Ipamorelin",    full:"Ipamorelin",                                type:"GH Secretagogue",             vial:2,  water:2,  dose:0.2,  doseRange:"0.2–0.3 mg",    freq:"1–3x daily",         route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Selective GH secretagogue with minimal side effects." },
-  { name:"Sermorelin",    full:"Sermorelin",                                type:"GHRH Analogue",               vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",    freq:"Once daily (bedtime)",route:"Subcutaneous",         storage:"Refrigerate; use within 30 days",  notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
-  { name:"Tesamorelin",   full:"Tesamorelin",                               type:"GHRH / Visceral Fat",         vial:2,  water:2,  dose:2.0,  doseRange:"2 mg/day",       freq:"Once daily",         route:"Subcutaneous (abdomen)",storage:"Refrigerate; use within 3 weeks",  notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
+  { name:"BPC-157",        full:"Body Protection Compound 157",               type:"Healing/Recovery",             vial:5,  water:2,  dose:0.25, doseRange:"0.25–0.5 mg",    freq:"1–2x daily",          route:"Subcutaneous or IM",     storage:"Refrigerate; use within 4 weeks",              notes:"Often used for gut health, tendon and ligament repair." },
+  { name:"TB-500",         full:"Thymosin Beta-4",                            type:"Recovery/Anti-inflammatory",   vial:5,  water:2,  dose:2.0,  doseRange:"2–2.5 mg",        freq:"2x weekly (loading)", route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
+  { name:"Ipamorelin",     full:"Ipamorelin",                                 type:"GH Secretagogue",              vial:10, water:2,  dose:0.2,  doseRange:"0.2–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 2 mL BAC water = 5 mg/mL (5,000 mcg/mL). 200 mcg dose = 4 units, 300 mcg dose = 6 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
+  { name:"CJC-1295",       full:"CJC-1295 No DAC",                            type:"GH Secretagogue / GHRH",       vial:5,  water:2,  dose:0.1,  doseRange:"0.1–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"GHRH analogue (No DAC = short-acting). 5 mg vial + 2 mL BAC water = 2.5 mg/mL (2,500 mcg/mL). 100 mcg dose = 4 units, 200 mcg = 8 units, 300 mcg = 12 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
+  { name:"Sermorelin",     full:"Sermorelin",                                 type:"GHRH Analogue",                vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",     freq:"Once daily (bedtime)", route:"Subcutaneous",           storage:"Refrigerate; use within 30 days",              notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
+  { name:"Tesamorelin",    full:"Tesamorelin",                                type:"GHRH / Visceral Fat",          vial:2,  water:2,  dose:2.0,  doseRange:"2 mg/day",        freq:"Once daily",          route:"Subcutaneous (abdomen)",  storage:"Refrigerate; use within 3 weeks",              notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
 ];
 
 function renderPeptidePills() {
@@ -187,22 +185,18 @@ function showPeptide(idx) {
 
 function loadPresetInCalc(idx) {
   const p = PRESETS[idx];
-  // Switch tab
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-calc').classList.add('active');
   document.querySelectorAll('.tab-btn')[0].classList.add('active');
-  // Clear all pills
   ['dose-pills','strength-pills','water-pills'].forEach(id =>
     document.getElementById(id).querySelectorAll('.pill').forEach(pl => pl.classList.remove('active'))
   );
   ['dose-custom','strength-custom','water-custom'].forEach(id => document.getElementById(id).value = '');
-  // Set state
   state.dose = p.dose; state.strength = p.vial; state.water = p.water;
-  // Highlight matching pills or fill custom
-  setPillOrCustom('dose-pills',     'dose-custom',     DOSE_OPTS,     p.dose,    'dose');
-  setPillOrCustom('strength-pills', 'strength-custom', STRENGTH_OPTS, p.vial,    'strength');
-  setPillOrCustom('water-pills',    'water-custom',    WATER_OPTS,    p.water,   'water');
+  setPillOrCustom('dose-pills',     'dose-custom',     DOSE_OPTS,     p.dose,  'dose');
+  setPillOrCustom('strength-pills', 'strength-custom', STRENGTH_OPTS, p.vial,  'strength');
+  setPillOrCustom('water-pills',    'water-custom',    WATER_OPTS,    p.water, 'water');
   calculate();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -222,7 +216,6 @@ function setPillOrCustom(pillsId, customId, opts, val, key) {
 let vials = [];
 try {
   vials = JSON.parse(localStorage.getItem('peptide-vials-v2') || '[]').map(v => {
-    // Migrate old dosesUsed → mgUsed
     if (v.mgUsed === undefined) v.mgUsed = (v.dosesUsed || 0) * v.doseMg;
     return v;
   });
@@ -263,7 +256,6 @@ function updateVialDose(id, rawVal) {
   if (isNaN(newDose) || newDose <= 0) return;
   v.doseMg = newDose;
   saveVials();
-  // Update paired units input without full re-render (avoids losing focus)
   const unitsInput = document.getElementById('units-' + id);
   if (unitsInput) unitsInput.value = fmt((newDose / v.concMgMl) * 100);
   renderVials();
@@ -276,7 +268,6 @@ function updateVialUnits(id, rawVal) {
   if (isNaN(newUnits) || newUnits <= 0) return;
   v.doseMg = parseFloat(((newUnits * 0.01) * v.concMgMl).toFixed(6));
   saveVials();
-  // Update paired dose input
   const doseInput = document.getElementById('dose-' + id);
   if (doseInput) doseInput.value = fmt(v.doseMg);
   renderVials();
@@ -303,17 +294,9 @@ function renderVials() {
           <div class="vial-detail">Added: ${v.addedAt} · ${fmt(mgRemaining)} mg remaining</div>
           <div class="vial-dose-edit">
             <label class="vial-dose-label">Dose (mg):</label>
-            <input
-              type="number" id="dose-${v.id}" class="vial-dose-input"
-              value="${fmt(v.doseMg)}" min="0.001" step="0.01"
-              onchange="updateVialDose(${v.id}, this.value)"
-            />
+            <input type="number" id="dose-${v.id}" class="vial-dose-input" value="${fmt(v.doseMg)}" min="0.001" step="0.01" onchange="updateVialDose(${v.id}, this.value)" />
             <label class="vial-dose-label" style="margin-left:10px;">Units:</label>
-            <input
-              type="number" id="units-${v.id}" class="vial-dose-input"
-              value="${currentUnits}" min="0.1" step="0.5"
-              onchange="updateVialUnits(${v.id}, this.value)"
-            />
+            <input type="number" id="units-${v.id}" class="vial-dose-input" value="${currentUnits}" min="0.1" step="0.5" onchange="updateVialUnits(${v.id}, this.value)" />
           </div>
         </div>
         <div class="vial-progress-wrap">
@@ -356,14 +339,14 @@ function switchCalcMode(mode, btn) {
 // ─── BLEND CALCULATOR ──────────────────────────────────────────────────
 const BLENDS = [
   {
-    name: 'GLOW',
+    name: 'GLOW Stack',
     peptides: [
       { name: 'GHK-Cu',  mg: 50 },
       { name: 'BPC-157', mg: 10 },
       { name: 'TB-500',  mg: 10 },
     ],
-    water: 3.0,
-    dose: 2.33,
+    water: 10.0,
+    dose: 1.4,
   },
   {
     name: 'Wolverine Stack',
@@ -371,7 +354,7 @@ const BLENDS = [
       { name: 'BPC-157', mg: 10 },
       { name: 'TB-500',  mg: 10 },
     ],
-    water: 3.0,
+    water: 4.0,
     dose: 1.0,
   },
 ];
@@ -409,7 +392,6 @@ function selectBlendPreset(idx) {
     blendState.peptides = preset.peptides.map(p => ({ ...p }));
     blendState.water = preset.water;
     blendState.dose  = preset.dose;
-    // Set water pill
     document.getElementById('blend-water-pills').querySelectorAll('.pill').forEach((el, i) => {
       el.classList.toggle('active', WATER_OPTS[i] === preset.water);
     });
@@ -445,10 +427,8 @@ function updateBlendPeptide(idx, field, val) {
 
 function addBlendPeptide() {
   blendState.peptides.push({ name: '', mg: 0 });
-  // Clear preset active state — now custom
   document.querySelectorAll('#blend-preset-pills .blend-preset-pill').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('#blend-preset-pills .blend-preset-pill')
-    [BLENDS.length].classList.add('active');
+  document.querySelectorAll('#blend-preset-pills .blend-preset-pill')[BLENDS.length].classList.add('active');
   renderBlendPeptideRows();
   updateBlendTotal();
 }
@@ -497,11 +477,10 @@ function calcBlend() {
   const volMl     = dose / totalConc;
   const units     = volMl * 100;
 
-  document.getElementById('blend-res-units').textContent    = fmt(units) + ' units';
+  document.getElementById('blend-res-units').textContent     = fmt(units) + ' units';
   document.getElementById('blend-res-units-sub').textContent =
     `on a U-100 insulin syringe  (= ${fmt(volMl)} mL)`;
 
-  // Per-peptide breakdown
   const tbody = document.getElementById('blend-breakdown-body');
   tbody.innerHTML = validPeptides.map(p => {
     const concMgMl = p.mg / water;

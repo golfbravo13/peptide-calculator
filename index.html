@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Peptide Reconstitution Calculator</title>
-
-  <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#6c63ff" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -13,7 +11,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Peptide Calc" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -38,23 +35,16 @@
     <button class="tab-btn" onclick="switchTab('dosage',this)">📋 Dosage Protocols</button>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 1 — MAIN CALCULATOR
-  ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 1 — CALCULATOR -->
   <div id="tab-calc" class="tab-content active">
-
-    <!-- CALC MODE TOGGLE -->
     <div class="calc-mode-toggle">
       <button class="mode-btn active" onclick="switchCalcMode('single',this)">💊 Single Peptide</button>
       <button class="mode-btn" onclick="switchCalcMode('blend',this)">🧪 Blended / Stack</button>
     </div>
 
-  <!-- ── SINGLE PEPTIDE MODE ─────────────────────────────────── -->
   <div id="calc-mode-single">
     <div class="card">
       <div class="card-title">💉 How much to draw?</div>
-
-      <!-- STEP 1: DOSE -->
       <div class="selector-group">
         <span class="selector-label">① Dose of Peptide <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(how much you want to inject)</span></span>
         <div class="pill-row" id="dose-pills"></div>
@@ -64,8 +54,6 @@
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
-
-      <!-- STEP 2: STRENGTH -->
       <div class="selector-group">
         <span class="selector-label">② Strength of Peptide <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(total mg in your vial)</span></span>
         <div class="pill-row" id="strength-pills"></div>
@@ -75,8 +63,6 @@
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
-
-      <!-- STEP 3: WATER -->
       <div class="selector-group">
         <span class="selector-label">③ BAC Water Added <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(how much solvent to add)</span></span>
         <div class="pill-row" id="water-pills"></div>
@@ -86,95 +72,51 @@
           <span style="color:var(--text2);font-size:0.88rem;">mL</span>
         </div>
       </div>
-
-      <!-- RESULTS -->
       <div id="main-results">
         <hr class="divider" />
-
-        <!-- Big highlight: units to draw -->
         <div class="highlight-box">
           <div class="big-label">Draw syringe to</div>
           <div class="big-val" id="res-units">—</div>
           <div class="big-sub" id="res-units-sub">units on a U-100 insulin syringe</div>
         </div>
-
-        <!-- Syringe graphic -->
         <div class="syringe-wrap">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
             <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
-              <!-- Needle -->
               <line x1="10" y1="50" x2="60" y2="50" stroke="#aaa" stroke-width="3" stroke-linecap="round"/>
-              <!-- Barrel bg -->
               <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1a1d27" stroke="#4a4f70" stroke-width="2"/>
-              <!-- Fill -->
               <rect x="60" y="28" width="0" height="44" rx="6" ry="6" fill="url(#fillGrad)" id="syringe-fill"/>
-              <!-- Tick marks & labels -->
               <g id="syringe-ticks" fill="none" stroke="#5a607a" stroke-width="1"></g>
               <g id="syringe-labels" font-size="9" fill="#9094b0" text-anchor="middle" font-family="system-ui"></g>
-              <!-- Plunger -->
               <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
               <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
-              <!-- Needle tip indicator -->
               <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs>
-                <linearGradient id="fillGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#6c63ff"/>
-                  <stop offset="100%" stop-color="#4ecdc4"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="fillGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6c63ff"/><stop offset="100%" stop-color="#4ecdc4"/></linearGradient></defs>
             </svg>
           </div>
           <p id="syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
         </div>
-
-        <!-- Stats row -->
         <div class="result-stats">
-          <div class="stat-box">
-            <div class="stat-label">Peptide Dose</div>
-            <div class="stat-val" id="res-dose">—</div>
-            <div class="stat-unit">mg</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Concentration</div>
-            <div class="stat-val" id="res-conc">—</div>
-            <div class="stat-unit">mg/mL</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Volume to Draw</div>
-            <div class="stat-val" id="res-vol">—</div>
-            <div class="stat-unit">mL</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Doses per Vial</div>
-            <div class="stat-val" id="res-doses">—</div>
-            <div class="stat-unit">doses</div>
-          </div>
+          <div class="stat-box"><div class="stat-label">Peptide Dose</div><div class="stat-val" id="res-dose">—</div><div class="stat-unit">mg</div></div>
+          <div class="stat-box"><div class="stat-label">Concentration</div><div class="stat-val" id="res-conc">—</div><div class="stat-unit">mg/mL</div></div>
+          <div class="stat-box"><div class="stat-label">Volume to Draw</div><div class="stat-val" id="res-vol">—</div><div class="stat-unit">mL</div></div>
+          <div class="stat-box"><div class="stat-label">Doses per Vial</div><div class="stat-val" id="res-doses">—</div><div class="stat-unit">doses</div></div>
         </div>
-
         <div class="info-banner" id="res-summary"></div>
       </div>
     </div>
-  </div><!-- /calc-mode-single -->
+  </div>
 
-  <!-- ── BLEND / STACK MODE ─────────────────────────────────────────── -->
   <div id="calc-mode-blend" style="display:none">
     <div class="card">
       <div class="card-title">🧪 Blended / Stack Calculator</div>
       <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Select a preset blend or build a custom stack. The calculator draws one syringe and breaks out each peptide's dose.</p>
-
-      <!-- Preset pills -->
       <span class="selector-label" style="margin-bottom:10px;display:block;">Select Preset</span>
       <div class="blend-preset-pills" id="blend-preset-pills"></div>
-
-      <!-- Peptide component rows -->
       <span class="selector-label" style="margin-bottom:8px;display:block;">Peptide Components</span>
       <div id="blend-peptide-rows"></div>
       <button class="btn btn-secondary" style="width:auto;padding:7px 16px;margin-top:2px;font-size:0.84rem;" onclick="addBlendPeptide()">+ Add Peptide</button>
-
       <div class="blend-total-bar" id="blend-total-bar" style="margin-top:14px;">Total vial: <strong>— mg</strong></div>
-
-      <!-- BAC Water -->
       <div class="selector-group" style="margin-top:20px;">
         <span class="selector-label">BAC Water Added</span>
         <div class="pill-row" id="blend-water-pills"></div>
@@ -184,26 +126,20 @@
           <span style="color:var(--text2);font-size:0.88rem;">mL</span>
         </div>
       </div>
-
-      <!-- Total dose -->
       <div class="selector-group">
         <span class="selector-label">Total Dose per Injection <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(combined mg of all peptides)</span></span>
         <div class="custom-input-row" style="margin-top:4px;">
-          <input type="number" id="blend-dose-input" placeholder="e.g. 2.33" min="0" step="0.01" style="max-width:170px;" oninput="blendSetDose(parseFloat(this.value))" />
+          <input type="number" id="blend-dose-input" placeholder="e.g. 1.4" min="0" step="0.01" style="max-width:170px;" oninput="blendSetDose(parseFloat(this.value))" />
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
-
-      <!-- Results -->
       <div id="blend-results">
         <hr class="divider" />
-
         <div class="highlight-box">
           <div class="big-label">Draw syringe to</div>
           <div class="big-val" id="blend-res-units">—</div>
           <div class="big-sub" id="blend-res-units-sub">units on a U-100 insulin syringe</div>
         </div>
-
         <div class="syringe-wrap" style="margin-top:16px;">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
@@ -216,59 +152,36 @@
               <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
               <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
               <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs>
-                <linearGradient id="fillGrad3" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#ff6b6b"/>
-                  <stop offset="100%" stop-color="#f7971e"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="fillGrad3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#f7971e"/></linearGradient></defs>
             </svg>
           </div>
           <p id="blend-syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
         </div>
-
         <div style="overflow-x:auto;margin-top:4px;">
           <table class="blend-breakdown">
-            <thead>
-              <tr><th>Peptide</th><th>Vial (mg)</th><th>Conc. (mg/mL)</th><th>Dose (mg)</th><th>Dose (mcg)</th></tr>
-            </thead>
+            <thead><tr><th>Peptide</th><th>Vial (mg)</th><th>Conc. (mg/mL)</th><th>Dose (mg)</th><th>Dose (mcg)</th></tr></thead>
             <tbody id="blend-breakdown-body"></tbody>
           </table>
         </div>
-
         <div class="info-banner" id="blend-summary" style="margin-top:16px;"></div>
       </div>
     </div>
-  </div><!-- /calc-mode-blend -->
+  </div>
 
-    <!-- REVERSE CALCULATOR -->
     <div class="card">
       <div class="card-title">🔄 Reverse Calculator — Units → Dose</div>
-      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Know how many units you drew? Enter them below to see the exact dose — completely independent of the calculator above.</p>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Know how many units you drew? Enter them below to see the exact dose.</p>
       <div class="grid grid-3">
-        <div class="field">
-          <label class="fld">Units Drawn</label>
-          <input type="number" id="rev-units" placeholder="e.g. 25" min="0" step="0.5" oninput="calcReverse()" />
-        </div>
-        <div class="field">
-          <label class="fld">Vial Strength (mg)</label>
-          <input type="number" id="rev-strength" placeholder="e.g. 10" min="0" step="0.1" oninput="calcReverse()" />
-        </div>
-        <div class="field">
-          <label class="fld">BAC Water Added (mL)</label>
-          <input type="number" id="rev-water" placeholder="e.g. 2" min="0" step="0.1" oninput="calcReverse()" />
-        </div>
+        <div class="field"><label class="fld">Units Drawn</label><input type="number" id="rev-units" placeholder="e.g. 25" min="0" step="0.5" oninput="calcReverse()" /></div>
+        <div class="field"><label class="fld">Vial Strength (mg)</label><input type="number" id="rev-strength" placeholder="e.g. 10" min="0" step="0.1" oninput="calcReverse()" /></div>
+        <div class="field"><label class="fld">BAC Water Added (mL)</label><input type="number" id="rev-water" placeholder="e.g. 2" min="0" step="0.1" oninput="calcReverse()" /></div>
       </div>
       <div id="rev-results" style="display:none;margin-top:18px;">
-
-        <!-- Big highlight -->
         <div class="highlight-box" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.35);">
           <div class="big-label">At <span id="rev-display-units">—</span> units, your dose is</div>
           <div class="big-val" id="rev-res-mg" style="color:var(--accent2)">—</div>
           <div class="big-sub" id="rev-res-mcg-sub">— mcg</div>
         </div>
-
-        <!-- Reverse syringe visual -->
         <div class="syringe-wrap" style="margin-top:16px;">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
@@ -281,58 +194,32 @@
               <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
               <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
               <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs>
-                <linearGradient id="fillGrad2" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#4ecdc4"/>
-                  <stop offset="100%" stop-color="#43e97b"/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="fillGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ecdc4"/><stop offset="100%" stop-color="#43e97b"/></linearGradient></defs>
             </svg>
           </div>
           <p id="rev-syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
         </div>
-
-        <!-- Stats row -->
         <div class="result-stats">
-          <div class="stat-box">
-            <div class="stat-label">Dose (mg)</div>
-            <div class="stat-val" id="rev-res-mg-stat" style="color:var(--accent2)">—</div>
-            <div class="stat-unit">mg</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Dose (mcg)</div>
-            <div class="stat-val" id="rev-res-mcg">—</div>
-            <div class="stat-unit">mcg</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Volume</div>
-            <div class="stat-val" id="rev-res-ml">—</div>
-            <div class="stat-unit">mL</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Concentration</div>
-            <div class="stat-val" id="rev-res-conc">—</div>
-            <div class="stat-unit">mg/mL</div>
-          </div>
+          <div class="stat-box"><div class="stat-label">Dose (mg)</div><div class="stat-val" id="rev-res-mg-stat" style="color:var(--accent2)">—</div><div class="stat-unit">mg</div></div>
+          <div class="stat-box"><div class="stat-label">Dose (mcg)</div><div class="stat-val" id="rev-res-mcg">—</div><div class="stat-unit">mcg</div></div>
+          <div class="stat-box"><div class="stat-label">Volume</div><div class="stat-val" id="rev-res-ml">—</div><div class="stat-unit">mL</div></div>
+          <div class="stat-box"><div class="stat-label">Concentration</div><div class="stat-val" id="rev-res-conc">—</div><div class="stat-unit">mg/mL</div></div>
         </div>
       </div>
     </div>
 
-    <!-- HOW IT WORKS -->
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">📖 How to use this calculator</div>
       <div style="font-size:0.88rem;color:var(--text2);line-height:1.7;">
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">① Dose</strong> — This is the amount of peptide you want <em>per injection</em>. Check your protocol for the recommended dose (e.g. 250 mcg = 0.25 mg).</p>
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">② Strength</strong> — This is the total amount of peptide <em>in your vial</em>, printed on the label (e.g. 5 mg, 10 mg).</p>
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">③ BAC Water</strong> — This is how much Bacteriostatic Water (BAC water) or sterile water you will <em>inject into the vial</em> to dissolve the peptide powder.</p>
-        <p><strong style="color:var(--text)">Result</strong> — The calculator tells you how many units to draw on a standard <strong style="color:var(--accent)">U-100 insulin syringe</strong> to get your desired dose.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">① Dose</strong> — The amount of peptide you want <em>per injection</em>.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">② Strength</strong> — The total amount of peptide <em>in your vial</em>, printed on the label.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">③ BAC Water</strong> — How much Bacteriostatic Water you will <em>inject into the vial</em> to dissolve the peptide powder.</p>
+        <p><strong style="color:var(--text)">Result</strong> — The calculator tells you how many units to draw on a standard <strong style="color:var(--accent)">U-100 insulin syringe</strong>.</p>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 2 — PEPTIDE GUIDE
-  ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 2 — PEPTIDE GUIDE -->
   <div id="tab-presets" class="tab-content">
     <div class="card">
       <div class="card-title">🧬 Common Peptide Reference</div>
@@ -342,155 +229,82 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 3 — VIAL TRACKER
-  ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 3 — VIAL TRACKER -->
   <div id="tab-vials" class="tab-content">
     <div class="card">
       <div class="card-title">➕ Add Vial</div>
       <div class="grid grid-2">
-        <div class="field">
-          <label class="fld">Peptide Name</label>
-          <input type="text" id="v-name" placeholder="e.g. BPC-157" />
-        </div>
-        <div class="field">
-          <label class="fld">Vial Size (mg)</label>
-          <input type="number" id="v-vial-mg" placeholder="e.g. 5" min="0" step="0.1" />
-        </div>
+        <div class="field"><label class="fld">Peptide Name</label><input type="text" id="v-name" placeholder="e.g. BPC-157" /></div>
+        <div class="field"><label class="fld">Vial Size (mg)</label><input type="number" id="v-vial-mg" placeholder="e.g. 5" min="0" step="0.1" /></div>
       </div>
       <div class="grid grid-2" style="margin-top:14px;">
-        <div class="field">
-          <label class="fld">BAC Water Added (mL)</label>
-          <input type="number" id="v-water-ml" placeholder="e.g. 2" min="0" step="0.1" />
-        </div>
-        <div class="field">
-          <label class="fld">Dose per Injection (mg)</label>
-          <input type="number" id="v-dose-mg" placeholder="e.g. 0.25" min="0" step="0.01" />
-        </div>
+        <div class="field"><label class="fld">BAC Water Added (mL)</label><input type="number" id="v-water-ml" placeholder="e.g. 2" min="0" step="0.1" /></div>
+        <div class="field"><label class="fld">Dose per Injection (mg)</label><input type="number" id="v-dose-mg" placeholder="e.g. 0.25" min="0" step="0.01" /></div>
       </div>
-      <div class="field" style="margin-top:14px;">
-        <label class="fld">Notes (optional)</label>
-        <input type="text" id="v-notes" placeholder="e.g. 2x daily, morning and evening" />
-      </div>
+      <div class="field" style="margin-top:14px;"><label class="fld">Notes (optional)</label><input type="text" id="v-notes" placeholder="e.g. 2x daily, morning and evening" /></div>
       <button class="btn btn-primary" onclick="addVial()" style="margin-top:14px;">+ Add Vial to Tracker</button>
     </div>
-
     <div class="card">
       <div class="card-title">📋 Active Vials</div>
-      <div id="vial-list" class="vial-list">
-        <div class="empty-state">
-          <div class="big">💊</div>
-          <div>No vials tracked yet. Add one above to get started.</div>
-        </div>
-      </div>
+      <div id="vial-list" class="vial-list"><div class="empty-state"><div class="big">💊</div><div>No vials tracked yet. Add one above to get started.</div></div></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 4 — DOSAGE PROTOCOLS
-  ════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 4 — DOSAGE PROTOCOLS -->
   <div id="tab-dosage" class="tab-content">
-
     <div class="card">
 
       <!-- 1. RETATRUTIDE -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 1. Retatrutide — 10 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 1.0 mL bacteriostatic water → ~10.0 mg/mL &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 100 mcg &nbsp;|&nbsp;
-          <strong>Frequency:</strong> Once weekly (SubQ) &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 insulin
-        </div>
-
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 1.0 mL bacteriostatic water → ~10.0 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 100 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once weekly (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 insulin</div>
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 9–12</td><td class="highlight">6 mg (6,000 mcg)</td><td>60 units</td><td>0.60 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 13+</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
-            </tbody>
-          </table>
-        </div>
-
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead><tbody>
+          <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 9–12</td><td class="highlight">6 mg (6,000 mcg)</td><td>60 units</td><td>0.60 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 13+</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
+        </tbody></table></div>
         <div class="protocol-label">Advanced / Aggressive Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 9–12</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 13+</td><td class="highlight">12 mg (12,000 mcg)</td><td>120 units</td><td>1.20 mL</td><td><strong style="color:var(--warning)">2 vials per dose</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">The 12 mg dose requires 2 vials (each reconstituted with 1.0 mL); draw 1.20 mL total and split into 2 separate injections at different sites. Cycle length: minimum 24 weeks; trials ran up to 48 weeks.</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead><tbody>
+          <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 9–12</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
+          <tr><td>Weeks 13+</td><td class="highlight">12 mg (12,000 mcg)</td><td>120 units</td><td>1.20 mL</td><td><strong style="color:var(--warning)">2 vials per dose</strong></td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">The 12 mg dose requires 2 vials; draw 1.20 mL total and split into 2 injections at different sites. Cycle: minimum 24 weeks.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- 2. BPC-157 + TB-500 -->
+      <!-- 2. WOLVERINE STACK -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 2. BPC-157 + TB-500 (Blend) — 20 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL total (~3.33 mg/mL per peptide) &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg total (~33.3 mcg each) &nbsp;|&nbsp;
-          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 (use 30- or 50-unit for Weeks 1–4 for precision)
-        </div>
-
+        <div class="dosage-section-title">💊 2. BPC-157 + TB-500 (Wolverine Stack) — 20 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 4.0 mL bacteriostatic water → 5.0 mg/mL total (2.5 mg/mL per peptide) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL = 50 mcg total &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Daily Dose (Total Blend)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–2</td><td class="highlight">500 mcg (0.5 mg)</td><td>~250 mcg each</td><td>7.5 units</td><td>0.075 mL</td></tr>
-              <tr><td>Weeks 3–4</td><td class="highlight">666 mcg (0.67 mg)</td><td>~333 mcg each</td><td>10 units</td><td>0.10 mL</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="protocol-label">Advanced / Loading Protocol (Optional)</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Daily Dose (Total Blend)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead>
-            <tbody>
-              <tr><td>Loading — Weeks 1–4</td><td class="highlight">1,500 mcg (1.5 mg)</td><td>~750 mcg each</td><td>22.5 units</td><td>0.225 mL</td></tr>
-              <tr><td>Maintenance — Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">Cycle: 4–8 weeks on, with an optional 6-week break between courses.</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose (Total)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead><tbody>
+          <tr><td>Weeks 1–2</td><td class="highlight">500 mcg (0.5 mg)</td><td>~250 mcg each</td><td>10 units</td><td>0.10 mL</td></tr>
+          <tr><td>Weeks 3–4</td><td class="highlight">750 mcg (0.75 mg)</td><td>~375 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
+          <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>20 units</td><td>0.20 mL</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">Cycle: 4–8 weeks on, optional 6-week break between courses. One 20 mg vial = 20 doses at 1 mg/dose.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- 3. GLOW -->
+      <!-- 3. GLOW STACK -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 3. GLOW (GHK-Cu + TB-500 + BPC-157) — 70 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~23.3 mg/mL total &nbsp;|&nbsp;
-          <strong>Per injection:</strong> ~1.7 mg GHK-Cu + ~0.33 mg TB-500 + ~0.33 mg BPC-157 &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 233 mcg &nbsp;|&nbsp;
-          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 (0.3 mL / 30-unit recommended)
-        </div>
-
-        <div class="protocol-label">Standard Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">2,330 mcg (2.33 mg)</td><td>10 units</td><td>0.10 mL</td><td>1 vial (covers full 28 days)</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">Cycle: 4 weeks daily dosing, followed by a 2–4 week rest before repeating. One 70 mg vial covers the complete 4-week cycle at standard dosing.</div>
+        <div class="dosage-section-title">💊 3. GLOW Stack (GHK-Cu + TB-500 + BPC-157) — 70 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add <strong>10 mL</strong> bacteriostatic water → 7.0 mg/mL total &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL = 70 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
+        <div class="dosage-note" style="margin-bottom:14px;">💡 <strong>Why 10 mL BAC water?</strong> Using 10 mL of Bacteriostatic Water significantly reduces the sting on injection — this is our recommended approach.</div>
+        <div class="protocol-label">Our Recommended Protocol</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
+          <tr><td>Weeks 1–2</td><td class="highlight">700 mcg (0.7 mg)</td><td>10 units</td><td>0.10 mL</td><td>Starting dose — assess tolerance</td></tr>
+          <tr><td>Weeks 3–4</td><td class="highlight">1,050 mcg (1.05 mg)</td><td>15 units</td><td>0.15 mL</td><td>Step up</td></tr>
+          <tr><td>Weeks 5–8</td><td class="highlight">1,400 mcg (1.4 mg)</td><td>20 units</td><td>0.20 mL</td><td>Maintenance dose</td></tr>
+          <tr><td>Weeks 9–12 (optional)</td><td class="highlight">2,100 mcg (2.1 mg)</td><td>30 units</td><td>0.30 mL</td><td>Higher dose cycle</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">One 70 mg vial gives 100 doses at 10 units (0.7 mg/dose) or ~50 doses at 20 units (1.4 mg/dose). Cycle: 8–12 weeks on, 4-week rest.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -498,35 +312,18 @@
       <!-- 4. GHK-Cu -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 4. GHK-Cu — 50 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 3.0 mL sterile/bacteriostatic water → ~16.67 mg/mL &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 167 mcg &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 (30- or 50-unit recommended for lower volumes) &nbsp;|&nbsp;
-          <strong>Storage:</strong> Use reconstituted solution within 30 days
-        </div>
-
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL sterile/bacteriostatic water → ~16.67 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 167 mcg &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Use within 30 days</div>
         <div class="protocol-label">Standard / Conservative Protocol (5 days/week)</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">1.0 mg (1,000 mcg)</td><td>6 units</td><td>0.06 mL</td><td>5 days/week</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">1.5 mg (1,500 mcg)</td><td>9 units</td><td>0.09 mL</td><td>5 days/week</td></tr>
-              <tr><td>Weeks 9–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>5 days/week</td></tr>
-            </tbody>
-          </table>
-        </div>
-
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead><tbody>
+          <tr><td>Weeks 1–4</td><td class="highlight">1.0 mg (1,000 mcg)</td><td>6 units</td><td>0.06 mL</td><td>5 days/week</td></tr>
+          <tr><td>Weeks 5–8</td><td class="highlight">1.5 mg (1,500 mcg)</td><td>9 units</td><td>0.09 mL</td><td>5 days/week</td></tr>
+          <tr><td>Weeks 9–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>5 days/week</td></tr>
+        </tbody></table></div>
         <div class="protocol-label">Alternative Protocol (3× per week)</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>3×/week (Mon/Wed/Fri)</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">Cycle: 8–12 weeks typical, extendable to 16 weeks. Both protocols deliver ~6 mg/week at maintenance.</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead><tbody>
+          <tr><td>Weeks 1–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>3×/week (Mon/Wed/Fri)</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">Cycle: 8–12 weeks, extendable to 16 weeks. Both protocols deliver ~6 mg/week at maintenance.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -534,28 +331,16 @@
       <!-- 5. MELANOTAN II -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 5. Melanotan II — 10 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
-          <strong>Frequency:</strong> Once daily (SubQ) during loading; then 1–2×/week maintenance &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 &nbsp;|&nbsp;
-          <strong>Storage:</strong> Use within 1–2 weeks
-        </div>
-
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily during loading; 1–2×/week maintenance &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
         <div class="protocol-label">Standard / Gradual Titration Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead>
-            <tbody>
-              <tr><td>Week 1</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Use 30- or 50-unit syringe</td></tr>
-              <tr><td>Week 2</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>—</td></tr>
-              <tr><td>Week 3</td><td class="highlight">750 mcg (0.75 mg)</td><td>22.5 units</td><td>0.225 mL</td><td>—</td></tr>
-              <tr><td>Weeks 4–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>Loading phase</td></tr>
-              <tr><td>Maintenance (post Week 8)</td><td class="highlight">500–1,000 mcg</td><td>15–30 units</td><td>0.15–0.30 mL</td><td>1–2×/week only</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Safety Warning:</strong> Do <strong>not</strong> exceed 2 mg/day. Serious systemic toxicity and rhabdomyolysis have been reported at 6 mg. Monitor moles and skin for changes regularly.</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
+          <tr><td>Week 1</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Use 30- or 50-unit syringe</td></tr>
+          <tr><td>Week 2</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>—</td></tr>
+          <tr><td>Week 3</td><td class="highlight">750 mcg (0.75 mg)</td><td>22.5 units</td><td>0.225 mL</td><td>—</td></tr>
+          <tr><td>Weeks 4–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>Loading phase</td></tr>
+          <tr><td>Maintenance</td><td class="highlight">500–1,000 mcg</td><td>15–30 units</td><td>0.15–0.30 mL</td><td>1–2×/week only</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Safety Warning:</strong> Do <strong>not</strong> exceed 2 mg/day. Serious systemic toxicity reported at 6 mg. Monitor moles and skin regularly.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -563,96 +348,119 @@
       <!-- 6. PT-141 -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 6. PT-141 (Bremelanotide) — 10 mg Vial</div>
-        <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
-          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
-          <strong>Syringe:</strong> U-100 (27–30G, 5/8-inch needle) &nbsp;|&nbsp;
-          <strong>Storage:</strong> Use within ~30 days; avoid freeze–thaw cycles
-        </div>
-
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> As needed &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Use within ~30 days</div>
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–8</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>~3 vials total</td></tr>
-              <tr><td>Weeks 9–12</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>~3 vials total</td></tr>
-              <tr><td>Weeks 13–16</td><td class="highlight">1,500 mcg (1.5 mg)</td><td>45 units</td><td>0.45 mL</td><td>~4 vials total</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">The FDA-approved on-demand dose (Vyleesi) is 1.75 mg SC before intercourse, max 8 doses/month. This daily research protocol titrates conservatively below that threshold. Monitor for nausea, flushing, and transient blood pressure changes.</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
+          <tr><td>Starting dose</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>45–90 min before activity</td></tr>
+          <tr><td>Standard dose</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>—</td></tr>
+          <tr><td>Max dose</td><td class="highlight">1,750 mcg (1.75 mg)</td><td>52.5 units</td><td>0.525 mL</td><td>FDA-approved Vyleesi dose</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">Max 8 doses/month. Monitor for nausea, flushing, and transient blood pressure changes.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- QUICK REFERENCE SUMMARY -->
+      <!-- CJC-1295 No DAC -->
+      <div class="dosage-section">
+        <div class="dosage-section-title">💊 CJC-1295 No DAC — 5 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 2.5 mg/mL (2,500 mcg/mL) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL = 25 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
+        <div class="protocol-label">Standard Titration Protocol</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead><tbody>
+          <tr><td>Weeks 1–2</td><td class="highlight">100 mcg (0.1 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
+          <tr><td>Weeks 3–4</td><td class="highlight">200 mcg (0.2 mg)</td><td>8 units</td><td>0.08 mL</td><td>Fasted, 30 min before sleep</td></tr>
+          <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>12 units</td><td>0.12 mL</td><td>Fasted — sleep or pre-training</td></tr>
+        </tbody></table></div>
+        <div class="protocol-label">CJC-1295 + Ipamorelin Stack (Recommended — 1:1 ratio)</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Peptide</th><th>Dose / Injection</th><th>Units</th><th>Volume (mL)</th><th>Draw into same syringe?</th></tr></thead><tbody>
+          <tr><td>CJC-1295 No DAC</td><td class="highlight">300 mcg</td><td>12 units</td><td>0.12 mL</td><td rowspan="2" style="color:var(--success);font-weight:600;">✓ Yes — draw CJC first, then Ipamorelin</td></tr>
+          <tr><td>Ipamorelin</td><td class="highlight">300 mcg</td><td>6 units</td><td>0.06 mL</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">Cycle: 12–16 weeks on, 4–8 weeks off. Take on an empty stomach — avoid food 2 hours before and 30 min after. One 5 mg CJC-1295 vial gives ~16 doses at 300 mcg.</div>
+      </div>
+
+      <hr class="dosage-divider" />
+
+      <!-- IPAMORELIN -->
+      <div class="dosage-section">
+        <div class="dosage-section-title">💊 Ipamorelin — 10 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 5.0 mg/mL (5,000 mcg/mL) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL = 50 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
+        <div class="protocol-label">Standard Titration Protocol (Solo)</div>
+        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead><tbody>
+          <tr><td>Weeks 1���2</td><td class="highlight">200 mcg (0.2 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
+          <tr><td>Weeks 3–4</td><td class="highlight">250 mcg (0.25 mg)</td><td>5 units</td><td>0.05 mL</td><td>Fasted, 30 min before sleep</td></tr>
+          <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted — sleep or pre-training</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note">One 10 mg vial gives ~33 doses at 300 mcg or 50 doses at 200 mcg. Cycle: 12–16 weeks on, 4–8 weeks off. Highly selective — minimal cortisol, prolactin, or appetite side effects.</div>
+      </div>
+
+      <hr class="dosage-divider" />
+
+      <!-- QUICK REFERENCE -->
       <div class="dosage-section">
         <div class="dosage-section-title">📊 Quick Reference Summary</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table quick-ref-table">
-            <thead><tr><th>Peptide</th><th>Vial Size</th><th>BAC Water</th><th>Concentration</th><th>Frequency</th><th>Starting Dose</th><th>Max Dose</th></tr></thead>
-            <tbody>
-              <tr><td>Retatrutide</td><td>10 mg</td><td>1.0 mL</td><td>10.0 mg/mL</td><td>1×/week</td><td class="highlight">2 mg</td><td>12 mg</td></tr>
-              <tr><td>BPC-157 + TB-500</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">500 mcg</td><td>1,500 mcg</td></tr>
-              <tr><td>GLOW</td><td>70 mg</td><td>3.0 mL</td><td>23.3 mg/mL</td><td>Daily</td><td class="highlight">2,330 mcg</td><td>2,330 mcg (fixed)</td></tr>
-              <tr><td>GHK-Cu</td><td>50 mg</td><td>3.0 mL</td><td>16.67 mg/mL</td><td>5×/week or 3×/week</td><td class="highlight">1.0 mg</td><td>2.0 mg</td></tr>
-              <tr><td>Melanotan II</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily → 1–2×/week</td><td class="highlight">250 mcg</td><td>1,000–2,000 mcg</td></tr>
-              <tr><td>PT-141</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily</td><td class="highlight">500 mcg</td><td>1,500 mcg</td></tr>
-              <tr><td>AOD-9604</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>Daily (fasted)</td><td class="highlight">300 mcg</td><td>500 mcg</td></tr>
-              <tr><td>MOTS-C</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">200 mcg</td><td>1,000 mcg</td></tr>
-              <tr><td>SLU-PP-332</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>1–2×/day</td><td class="highlight">500 mcg</td><td>1,000 mcg</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="dosage-table-wrap"><table class="dosage-table quick-ref-table"><thead><tr><th>Peptide</th><th>Vial Size</th><th>BAC Water</th><th>Concentration</th><th>Frequency</th><th>Starting Dose</th><th>Max Dose</th></tr></thead><tbody>
+          <tr><td>Retatrutide</td><td>10 mg</td><td>1.0 mL</td><td>10.0 mg/mL</td><td>1×/week</td><td class="highlight">2 mg</td><td>12 mg</td></tr>
+          <tr><td>GLOW Stack ⭐</td><td>70 mg</td><td>10.0 mL</td><td>7.0 mg/mL</td><td>Daily</td><td class="highlight">700 mcg (10 units)</td><td>2,100 mcg (30 units)</td></tr>
+          <tr><td>Wolverine Stack</td><td>20 mg</td><td>4.0 mL</td><td>5.0 mg/mL</td><td>Daily</td><td class="highlight">500 mcg (10 units)</td><td>1,000 mcg (20 units)</td></tr>
+          <tr><td>CJC-1295 No DAC</td><td>5 mg</td><td>2.0 mL</td><td>2.5 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">100 mcg (4 units)</td><td>300 mcg (12 units)</td></tr>
+          <tr><td>Ipamorelin</td><td>10 mg</td><td>2.0 mL</td><td>5.0 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">200 mcg (4 units)</td><td>300 mcg (6 units)</td></tr>
+          <tr><td>Tirzepatide</td><td>5 mg</td><td>10.0 mL</td><td>0.5 mg/mL</td><td>1×/week</td><td class="highlight">2.5 mg</td><td>15 mg</td></tr>
+          <tr><td>PT-141</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>As needed</td><td class="highlight">500 mcg</td><td>1,750 mcg</td></tr>
+          <tr><td>Melanotan II</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily → 1–2×/week</td><td class="highlight">250 mcg</td><td>1,000–2,000 mcg</td></tr>
+          <tr><td>GHK-Cu</td><td>50 mg</td><td>3.0 mL</td><td>16.67 mg/mL</td><td>5×/week or 3×/week</td><td class="highlight">1.0 mg</td><td>2.0 mg</td></tr>
+          <tr><td>MOTS-C</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">200 mcg</td><td>1,000 mcg</td></tr>
+          <tr><td>AOD-9604</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>Daily (fasted)</td><td class="highlight">300 mcg</td><td>500 mcg</td></tr>
+        </tbody></table></div>
+        <div class="dosage-note" style="margin-top:10px;">⭐ GLOW Stack uses 10 mL BAC water (our recommendation) — reduces injection sting significantly.</div>
       </div>
 
       <hr class="dosage-divider" />
 
+      <!-- AOD-9604 -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 7. AOD-9604 — 5 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily, fasted (morning) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 30–45 days</div>
+        <div class="dosage-section-title">💊 AOD-9604 — 5 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily, fasted (morning) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
         <div class="protocol-label">Standard / Gradual Protocol</div>
         <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Weeks 1–4</td><td class="highlight">300 mcg (0.3 mg)</td><td>18 units</td><td>0.18 mL</td><td>Titration phase — assess tolerance</td></tr>
+          <tr><td>Weeks 1–4</td><td class="highlight">300 mcg (0.3 mg)</td><td>18 units</td><td>0.18 mL</td><td>Titration phase</td></tr>
           <tr><td>Weeks 5–12</td><td class="highlight">500 mcg (0.5 mg)</td><td>30 units</td><td>0.30 mL</td><td>Full dose — inject fasted AM</td></tr>
         </tbody></table></div>
-        <div class="dosage-note">Inject subcutaneously each morning on an empty stomach for optimal lipolytic effect. Cycle: 8–12 weeks on, 4-week break. One 5 mg vial covers ~10 days at 500 mcg/day. Placebo-like safety profile in clinical trials.</div>
+        <div class="dosage-note">Cycle: 8–12 weeks on, 4-week break. One 5 mg vial covers ~10 days at 500 mcg/day.</div>
       </div>
 
       <hr class="dosage-divider" />
 
+      <!-- MOTS-C -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 8. MOTS-C — 20 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp; <strong>Storage:</strong> Freeze lyophilized; refrigerate after reconstitution, use within 7 days</div>
+        <div class="dosage-section-title">💊 MOTS-C — 20 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Freeze lyophilized; refrigerate after reconstitution, use within 7 days</div>
         <div class="protocol-label">Standard Titration Protocol</div>
         <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>3 units</td><td>0.03 mL</td><td>Starting dose — use 30-unit syringe for precision</td></tr>
+          <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>3 units</td><td>0.03 mL</td><td>Starting dose — use 30-unit syringe</td></tr>
           <tr><td>Weeks 3–4</td><td class="highlight">400 mcg (0.4 mg)</td><td>6 units</td><td>0.06 mL</td><td>—</td></tr>
           <tr><td>Weeks 5–6</td><td class="highlight">600 mcg (0.6 mg)</td><td>9 units</td><td>0.09 mL</td><td>—</td></tr>
           <tr><td>Weeks 7–8</td><td class="highlight">800 mcg (0.8 mg)</td><td>12 units</td><td>0.12 mL</td><td>—</td></tr>
           <tr><td>Weeks 9–12+</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>15 units</td><td>0.15 mL</td><td>Maintenance dose</td></tr>
         </tbody></table></div>
-        <div class="dosage-note">Titrate slowly — hold each dose for 2 weeks before escalating. One 20 mg vial covers ~20 days at 1,000 mcg/day. Limited human clinical data; based on research protocols. Monitor tolerance at each step.</div>
+        <div class="dosage-note">Titrate slowly — hold each dose 2 weeks before escalating. One 20 mg vial covers ~20 days at 1,000 mcg/day.</div>
       </div>
 
       <hr class="dosage-divider" />
 
+      <!-- SLU-PP-332 -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 9. SLU-PP-332 — 5 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–2× daily (split dosing preferred) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 30 days</div>
+        <div class="dosage-section-title">💊 SLU-PP-332 — 5 mg Vial</div>
+        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–2× daily &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
         <div class="protocol-label">Research Protocol (Titration)</div>
         <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose (Total)</th><th>Per Injection</th><th>Units / Injection</th><th>Volume / Injection</th></tr></thead><tbody>
           <tr><td>Weeks 1–2</td><td class="highlight">500 mcg</td><td>250 mcg (×2)</td><td>15 units</td><td>0.15 mL</td></tr>
           <tr><td>Weeks 3–4</td><td class="highlight">750 mcg</td><td>375 mcg (×2)</td><td>22.5 units</td><td>0.225 mL</td></tr>
           <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg</td><td>500 mcg (×2)</td><td>30 units</td><td>0.30 mL</td></tr>
         </tbody></table></div>
-        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Research Only:</strong> SLU-PP-332 has <strong>not</strong> been tested in human subjects. All evidence is from murine (animal) models. Targets ERRα/δ/γ receptors to mimic endurance exercise at the cellular level. For educational reference only.</div>
+        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Research Only:</strong> SLU-PP-332 has <strong>not</strong> been tested in human subjects. All evidence from murine models. For educational reference only.</div>
       </div>
 
-      <div class="source-note">Source: PeptideDosages.com — Educational reference only. Not medical advice. Research peptides not approved by the FDA (except bremelanotide/Vyleesi for HSDD). Consult a qualified healthcare professional before use.</div>
-
+      <div class="source-note">Educational reference only. Not medical advice. Consult a qualified healthcare professional before use.</div>
     </div>
   </div>
 
@@ -663,6 +471,5 @@
 </div>
 
 <script src="/app.js"></script>
-
 </body>
 </html>
