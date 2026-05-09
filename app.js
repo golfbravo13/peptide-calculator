@@ -130,23 +130,23 @@ function drawSyringe(targetUnits, prefix) {
 // ─── PEPTIDE PRESETS ──────────────────────────────────────────────────
 const PRESETS = [
   // ── Primary / Most Used ──
-  { name:"Retatrutide",    full:"Retatrutide (RETA) — Triple Agonist",        type:"GLP-1/GIP/Glucagon",          vial:10, water:10, dose:0.5,  doseRange:"0.5–12 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
-  { name:"GLOW Stack",     full:"BPC-157 + TB-500 + GHK-Cu Blend",            type:"Healing/Skin/Recovery Blend", vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL of BAC water — the BAC water significantly reduces the sting on injection compared to sterile water." },
-  { name:"Wolverine Stack", full:"BPC-157 + TB-500 Blend",                    type:"Healing/Recovery Blend",      vial:20, water:4,  dose:1.0,  doseRange:"1 mg",            freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 4 mL BAC water gives 5 mg/mL — 1 mg dose = 20 units on a U-100 syringe." },
-  { name:"Tirzepatide",    full:"Tirzepatide (GIP/GLP-1)",                    type:"GLP-1/GIP / Metabolic",       vial:5,  water:10, dose:2.5,  doseRange:"2.5–15 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
-  { name:"PT-141",         full:"PT-141 (Bremelanotide)",                     type:"Sexual Health",                vial:10, water:10, dose:0.5,  doseRange:"0.5–2 mg",        freq:"As needed",           route:"Subcutaneous",           storage:"Refrigerate after reconstitution",             notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
-  { name:"Melanotan II",   full:"Melanotan II",                                type:"Tanning/Melanocortin",         vial:10, water:10, dose:0.25, doseRange:"0.25–1 mg",       freq:"Daily (loading)",     route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
-  { name:"GHK-Cu",         full:"GHK-Cu (Copper Peptide)",                    type:"Skin/Anti-aging/Collagen",     vial:50, water:10, dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous or topical", storage:"Refrigerate; use within 4 weeks",              notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
+  { name:"Retatrutide",    full:"Retatrutide (RETA) — Triple Agonist",        type:"GLP-1/GIP/Glucagon",          vial:10, water:3,  dose:0.5,  doseRange:"0.5–12 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
+  { name:"GLOW Stack",     full:"BPC-157 + TB-500 + GHK-Cu Blend",            type:"Healing/Skin/Recovery Blend", vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL BAC water — this is the ONLY peptide in this protocol that uses 10 mL. The higher dilution significantly reduces injection sting." },
+  { name:"Wolverine Stack", full:"BPC-157 + TB-500 Blend",                    type:"Healing/Recovery Blend",      vial:20, water:3,  dose:1.0,  doseRange:"1 mg",            freq:"Daily or 2x weekly",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 3 mL BAC water gives ~6.67 mg/mL — 1 mg dose = 15 units on a U-100 syringe." },
+  { name:"Tirzepatide",    full:"Tirzepatide (GIP/GLP-1)",                    type:"GLP-1/GIP / Metabolic",       vial:5,  water:3,  dose:2.5,  doseRange:"2.5–15 mg/wk",   freq:"Once weekly",         route:"Subcutaneous",           storage:"Refrigerate; use within 28 days",              notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
+  { name:"PT-141",         full:"PT-141 (Bremelanotide)",                     type:"Sexual Health",                vial:10, water:3,  dose:0.5,  doseRange:"0.5–2 mg",        freq:"As needed",           route:"Subcutaneous",           storage:"Refrigerate after reconstitution",             notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
+  { name:"Melanotan II",   full:"Melanotan II",                                type:"Tanning/Melanocortin",         vial:10, water:3,  dose:0.25, doseRange:"0.25–1 mg",       freq:"Daily (loading)",     route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
+  { name:"GHK-Cu",         full:"GHK-Cu (Copper Peptide)",                    type:"Skin/Anti-aging/Collagen",     vial:50, water:3,  dose:1.0,  doseRange:"1–2 mg",          freq:"Daily or 2x weekly",  route:"Subcutaneous or topical", storage:"Refrigerate; use within 4 weeks",              notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
   { name:"MOTS-C",         full:"MOTS-C (Mitochondrial-derived Peptide)",     type:"Metabolic/Longevity",          vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",   freq:"Once daily",          route:"Subcutaneous",           storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
   { name:"AOD-9604",       full:"AOD-9604 (Tyr-hGH Fragment 177–191)",        type:"Fat Metabolism/Lipolysis",     vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",     freq:"Once daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 30–45 days",           notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
   { name:"SLU-PP-332",     full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",         type:"Exercise Mimetic/Metabolic",   vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",   freq:"1–2x daily",          route:"Subcutaneous",           storage:"Refrigerate; use within 30 days",              notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
   // ── Others ──
-  { name:"BPC-157",        full:"Body Protection Compound 157",               type:"Healing/Recovery",             vial:5,  water:2,  dose:0.25, doseRange:"0.25–0.5 mg",    freq:"1–2x daily",          route:"Subcutaneous or IM",     storage:"Refrigerate; use within 4 weeks",              notes:"Often used for gut health, tendon and ligament repair." },
-  { name:"TB-500",         full:"Thymosin Beta-4",                            type:"Recovery/Anti-inflammatory",   vial:5,  water:2,  dose:2.0,  doseRange:"2–2.5 mg",        freq:"2x weekly (loading)", route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
-  { name:"Ipamorelin",     full:"Ipamorelin",                                 type:"GH Secretagogue",              vial:10, water:2,  dose:0.2,  doseRange:"0.2–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 2 mL BAC water = 5 mg/mL (5,000 mcg/mL). 200 mcg dose = 4 units, 300 mcg dose = 6 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
-  { name:"CJC-1295",       full:"CJC-1295 No DAC",                            type:"GH Secretagogue / GHRH",       vial:5,  water:2,  dose:0.1,  doseRange:"0.1–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"GHRH analogue (No DAC = short-acting). 5 mg vial + 2 mL BAC water = 2.5 mg/mL (2,500 mcg/mL). 100 mcg dose = 4 units, 200 mcg = 8 units, 300 mcg = 12 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
+  { name:"BPC-157",        full:"Body Protection Compound 157",               type:"Healing/Recovery",             vial:5,  water:3,  dose:0.25, doseRange:"0.25–0.5 mg",    freq:"1–2x daily",          route:"Subcutaneous or IM",     storage:"Refrigerate; use within 4 weeks",              notes:"Often used for gut health, tendon and ligament repair." },
+  { name:"TB-500",         full:"Thymosin Beta-4",                            type:"Recovery/Anti-inflammatory",   vial:5,  water:3,  dose:2.0,  doseRange:"2–2.5 mg",        freq:"2x weekly (loading)", route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
+  { name:"Ipamorelin",     full:"Ipamorelin",                                 type:"GH Secretagogue",              vial:10, water:3,  dose:0.2,  doseRange:"0.2–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 200 mcg dose = 6 units, 300 mcg dose = 9 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
+  { name:"CJC-1295",       full:"CJC-1295 No DAC",                            type:"GH Secretagogue / GHRH",       vial:5,  water:3,  dose:0.1,  doseRange:"0.1–0.3 mg",     freq:"1–3x daily (fasted)",  route:"Subcutaneous",           storage:"Refrigerate; use within 4 weeks",              notes:"GHRH analogue (No DAC = short-acting). 5 mg vial + 3 mL BAC water = 1.67 mg/mL (1,667 mcg/mL). 100 mcg dose = 6 units, 200 mcg = 12 units, 300 mcg = 18 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
   { name:"Sermorelin",     full:"Sermorelin",                                 type:"GHRH Analogue",                vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",     freq:"Once daily (bedtime)", route:"Subcutaneous",           storage:"Refrigerate; use within 30 days",              notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
-  { name:"Tesamorelin",    full:"Tesamorelin",                                type:"GHRH / Visceral Fat",          vial:2,  water:2,  dose:2.0,  doseRange:"2 mg/day",        freq:"Once daily",          route:"Subcutaneous (abdomen)",  storage:"Refrigerate; use within 3 weeks",              notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
+  { name:"Tesamorelin",    full:"Tesamorelin",                                type:"GHRH / Visceral Fat",          vial:2,  water:3,  dose:2.0,  doseRange:"2 mg/day",        freq:"Once daily",          route:"Subcutaneous (abdomen)",  storage:"Refrigerate; use within 3 weeks",              notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
 ];
 
 function renderPeptidePills() {
@@ -354,7 +354,7 @@ const BLENDS = [
       { name: 'BPC-157', mg: 10 },
       { name: 'TB-500',  mg: 10 },
     ],
-    water: 4.0,
+    water: 3.0,
     dose: 1.0,
   },
 ];
@@ -365,7 +365,7 @@ function buildBlendPresetPills() {
   const el = document.getElementById('blend-preset-pills');
   const pills = [...BLENDS.map((b, i) =>
     `<button class="blend-preset-pill" onclick="selectBlendPreset(${i})">${b.name}</button>`
-  ), `<button class="blend-preset-pill" onclick="selectBlendPreset(-1)">✦ Custom</button>`];
+  ), `<button class="blend-preset-pill" onclick="selectBlendPreset(-1)">❆ Custom</button>`];
   el.innerHTML = pills.join('');
 }
 
@@ -507,6 +507,60 @@ function calcBlend() {
 
   resEl.style.display = 'block';
   drawSyringe(units, 'blend-');
+}
+
+// ─── CYCLE GUIDE ───────────────────────────────────────────────────────
+function filterCycles(cat, btn) {
+  document.querySelectorAll('.cycle-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.color = '';
+  });
+  btn.classList.add('active');
+  if (cat === 'all') {
+    btn.style.background = '#6c63ff';
+    btn.style.color = '#fff';
+  } else {
+    const catColors = {
+      repair: '#4ecdc4', gh: '#6c63ff', fatloss: '#f7971e',
+      longevity: '#43e97b', asneeded: '#ff6b6b', blend: '#ffd200'
+    };
+    btn.style.background = catColors[cat] || '#6c63ff';
+    btn.style.color = cat === 'blend' ? '#1a1d27' : '#fff';
+  }
+  document.querySelectorAll('#cycle-grid .cycle-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+function prefillCalc(dose, strength, water) {
+  const calcBtn = document.querySelector('.tab-btn');
+  switchTab('calc', calcBtn);
+  switchCalcMode('single', document.querySelector('.mode-btn'));
+  state.dose = dose;
+  state.strength = strength;
+  state.water = water;
+  function activatePill(containerId, value) {
+    let matched = false;
+    document.querySelectorAll(`#${containerId} .pill`).forEach(btn => {
+      const v = parseFloat(btn.textContent);
+      if (Math.abs(v - value) < 0.001) { btn.click(); matched = true; }
+    });
+    if (!matched) {
+      const customMap = { 'dose-pills': 'dose-custom', 'strength-pills': 'strength-custom', 'water-pills': 'water-custom' };
+      const inp = document.getElementById(customMap[containerId]);
+      if (inp) { inp.value = value; inp.dispatchEvent(new Event('input')); }
+    }
+  }
+  setTimeout(() => {
+    activatePill('dose-pills', dose);
+    activatePill('strength-pills', strength);
+    activatePill('water-pills', water);
+  }, 50);
 }
 
 // ─── INIT ──────────────────────────────────────────────────────────────
