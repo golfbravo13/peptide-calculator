@@ -326,3 +326,63 @@
       font-size: 0.78rem; color: var(--text2); text-align: center;
       margin-top: 16px; font-style: italic;
     }
+
+    /* -- CYCLE GUIDE TAB -- */
+    .cycle-filter-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+    .cycle-filter-btn {
+      padding:6px 14px; border-radius:20px; border:1px solid var(--border);
+      background:var(--surface2); color:var(--text2); cursor:pointer;
+      font-size:0.8rem; font-weight:500; transition:all 0.2s;
+    }
+    .cycle-filter-btn:hover { border-color:var(--accent); color:var(--text); }
+    .cycle-filter-btn.active { color:#fff; border-color:transparent; }
+    .cycle-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+      gap:14px;
+    }
+    .cycle-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:18px; position:relative;
+      overflow:hidden; transition:border-color 0.2s;
+    }
+    .cycle-card:hover { border-color:var(--accent); }
+    .cycle-card-accent {
+      position:absolute; top:0; left:0; right:0; height:3px; border-radius:12px 12px 0 0;
+    }
+    .cycle-card-header {
+      display:flex; align-items:flex-start; gap:12px; margin-bottom:12px;
+    }
+    .cycle-icon {
+      font-size:1.8rem; line-height:1; min-width:36px; text-align:center;
+    }
+    .cycle-name { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .cycle-purpose { font-size:0.78rem; color:var(--text2); line-height:1.4; }
+    .cycle-dose {
+      font-size:0.82rem; color:var(--accent2); font-weight:600;
+      margin-bottom:12px; padding:6px 10px; background:rgba(78,205,196,0.08);
+      border-radius:6px; border-left:2px solid var(--accent2);
+    }
+    .cycle-duration-label {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:6px;
+    }
+    .cycle-duration-text { font-size:0.78rem; color:var(--text2); }
+    .cycle-duration-val { font-size:0.85rem; font-weight:700; }
+    .cycle-bar-track {
+      height:8px; background:var(--surface2); border-radius:4px; overflow:hidden;
+      margin-bottom:14px;
+    }
+    .cycle-bar-fill { height:100%; border-radius:4px; transition:width 0.6s ease; }
+    .cycle-badge {
+      display:inline-block; padding:3px 10px; border-radius:12px;
+      font-size:0.7rem; font-weight:700; letter-spacing:0.04em;
+      text-transform:uppercase; margin-bottom:12px;
+    }
+    .cycle-footer { display:flex; justify-content:flex-end; }
+    .cycle-use-btn {
+      padding:6px 14px; border-radius:6px; border:1px solid var(--border);
+      background:var(--surface2); color:var(--text2); cursor:pointer;
+      font-size:0.76rem; font-weight:600; transition:all 0.2s;
+    }
+    .cycle-use-btn:hover { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .cycle-card.hidden { display:none; }
