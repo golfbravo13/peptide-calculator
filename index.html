@@ -4,13 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Peptide Reconstitution Calculator</title>
+
+  <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#6c63ff" />
+  <meta name="theme-color" content="#0B0D14" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Peptide Calc" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -18,34 +26,1055 @@
       });
     }
   </script>
-  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Surfaces — cooler, deeper, with a real raised tier */
+      --bg-base:      #0B0D14;
+      --bg-surface:   #161927;
+      --bg-raised:    #1E2235;
+      --bg-elevated:  #262B40;
+
+      /* Hairlines */
+      --border-subtle: rgba(255,255,255,0.06);
+      --border:        #2B3050;
+      --border-strong: #3A4070;
+      --hairline-top:  rgba(255,255,255,0.04);
+
+      /* Ink */
+      --ink-strong:  #F5F7FF;
+      --ink:         #ECEEF8;
+      --ink-muted:   #8E93B1;
+      --ink-quiet:   #5A5F7A;
+
+      /* Brand — same purple/teal DNA, slightly punchier and deeper */
+      --primary:      #7C6CFF;
+      --primary-soft: rgba(124,108,255,0.14);
+      --primary-glow: rgba(124,108,255,0.35);
+      --accent:       #38E0C7;
+      --accent-soft:  rgba(56,224,199,0.12);
+      --data:         #B8C5FF;
+
+      /* Semantic */
+      --success: #3DDC97;
+      --warning: #FF8A5C;
+      --danger:  #FF5B72;
+
+      /* Focus */
+      --ring: #38E0C7;
+
+      /* Radii — restrained, architectural */
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 16px;
+      --r-pill: 999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 10px 28px rgba(0,0,0,0.35);
+      --hairline-inset: inset 0 1px 0 var(--hairline-top);
+
+      /* Motion */
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --t-fast: 120ms;
+      --t-med: 220ms;
+      --t-slow: 360ms;
+
+      /* Legacy aliases — kept so existing inline references stay working */
+      --bg: var(--bg-base);
+      --surface: var(--bg-surface);
+      --surface2: var(--bg-raised);
+      --text: var(--ink);
+      --text2: var(--ink-muted);
+      --accent2: var(--accent);
+      --accent3: var(--danger);
+      --radius: var(--r-md);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,108,255,0.10), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(56,224,199,0.05), transparent 55%),
+        var(--bg-base);
+      background-attachment: fixed;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(48px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      position: relative;
+    }
+    /* Subtle grain overlay — breaks the flatness without being noisy */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      opacity: 0.5;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    }
+    .max-w { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* Focus ring — global */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute; left: -9999px; top: 8px; z-index: 100;
+      background: var(--bg-elevated); color: var(--ink-strong);
+      padding: 10px 14px; border-radius: var(--r-sm);
+      border: 1px solid var(--border-strong);
+      font-weight: 600; text-decoration: none;
+    }
+    .skip-link:focus { left: 16px; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; flex-direction: column; align-items: flex-start;
+      gap: 4px; margin-bottom: 28px; padding-top: 4px;
+    }
+    .brand-row { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 10px; height: 10px; border-radius: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56,224,199,0.5);
+    }
+    header h1 {
+      font-family: 'Manrope', system-ui, sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--ink-strong);
+      line-height: 1.15;
+    }
+    header p {
+      color: var(--ink-muted); font-size: 0.92rem;
+      font-weight: 400; margin-top: 2px; max-width: 56ch;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      position: relative;
+      display: flex; gap: 4px;
+      margin: 0 -8px 24px;
+      padding: 0 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 0 0 auto;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 14px 14px;
+      border: none; background: transparent;
+      color: var(--ink-muted); cursor: pointer;
+      font-family: inherit; font-size: 0.88rem; font-weight: 600;
+      letter-spacing: -0.005em;
+      transition: color var(--t-fast) var(--ease);
+      position: relative; white-space: nowrap;
+      min-height: 44px;
+    }
+    .tab-btn .tab-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
+      stroke: currentColor; fill: none;
+      transition: transform var(--t-med) var(--ease);
+    }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn[aria-selected="true"] { color: var(--ink-strong); }
+    .tab-btn[aria-selected="true"] .tab-icon {
+      stroke: var(--accent);
+    }
+    .tab-indicator {
+      position: absolute; bottom: -1px; left: 0;
+      height: 2px; width: 0; background: var(--accent);
+      border-radius: 2px 2px 0 0;
+      box-shadow: 0 0 12px rgba(56,224,199,0.6);
+      transition: transform var(--t-slow) var(--ease), width var(--t-slow) var(--ease);
+      pointer-events: none;
+    }
+
+    .tab-content { display: none; animation: fadeIn var(--t-med) var(--ease); }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm), var(--hairline-inset);
+      position: relative;
+    }
+    .card-title {
+      font-size: 1.02rem; font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink-strong);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Eyebrow — replaces old cyan h-titles */
+    .eyebrow, .selector-label {
+      display: block;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .selector-label .hint {
+      display: inline-block; margin-left: 6px;
+      letter-spacing: 0.01em; text-transform: none;
+      color: var(--ink-muted); font-size: 0.78rem; font-weight: 500;
+    }
+
+    /* ── PRESET PILLS ── */
+    .selector-group { margin-bottom: 22px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .pill {
+      padding: 9px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem; font-weight: 600;
+      letter-spacing: -0.005em;
+      transition: all var(--t-fast) var(--ease);
+      user-select: none;
+      font-variant-numeric: tabular-nums;
+    }
+    .pill:hover { border-color: var(--border-strong); color: var(--ink); background: var(--bg-elevated); }
+    .pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--primary-soft), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .custom-input-row {
+      display: flex; align-items: center; gap: 10px; margin-top: 8px;
+      font-size: 0.85rem; color: var(--ink-muted);
+    }
+    .custom-input-row label { font-size: 0.82rem; color: var(--ink-muted); white-space: nowrap; }
+    .custom-input-row .unit { color: var(--ink-muted); font-size: 0.85rem; }
+
+    /* ── INPUTS ── */
+    input[type="number"], select, input[type="text"] {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--ink);
+      padding: 10px 13px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 500;
+      width: 100%;
+      outline: none;
+      transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+      -moz-appearance: textfield;
+      font-variant-numeric: tabular-nums;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input::placeholder { color: var(--ink-quiet); }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    input.invalid {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(255,91,114,0.16);
+    }
+    .field-error {
+      display: block; margin-top: 4px;
+      font-size: 0.78rem; color: var(--danger);
+    }
+
+    /* ── SYRINGE VISUAL ── */
+    .syringe-wrap {
+      margin: 22px 0 14px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 18px 16px 14px;
+      box-shadow: var(--hairline-inset);
+    }
+    .syringe-wrap h3 {
+      text-align: center;
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--ink-muted); margin-bottom: 14px;
+    }
+    .syringe-svg-container { width: 100%; overflow-x: auto; }
+    svg.syringe { display: block; width: 100%; max-width: 600px; margin: 0 auto; }
+    #syringe-caption, #rev-syringe-caption, #blend-syringe-caption {
+      text-align: center; font-size: 0.82rem;
+      color: var(--ink-muted); margin-top: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── RESULTS GRID ── */
+    .result-stats {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px; margin-top: 18px;
+    }
+    @media(min-width:720px) { .result-stats { grid-template-columns: repeat(4, 1fr); } }
+
+    .stat-box {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 16px 14px 14px;
+      text-align: center;
+      position: relative;
+      box-shadow: var(--hairline-inset);
+    }
+    .stat-box::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 24px; height: 2px; border-radius: 0 0 2px 2px;
+      background: var(--accent);
+    }
+    .stat-label {
+      font-size: 0.68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-muted); margin-bottom: 8px;
+    }
+    .stat-val {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 1.3rem; font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--data);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-unit {
+      font-size: 0.72rem; color: var(--ink-muted);
+      margin-top: 4px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    /* ── HERO HIGHLIGHT BOX ── */
+    .highlight-box {
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(124,108,255,0.12), rgba(56,224,199,0.06)),
+        var(--bg-elevated);
+      border: 1px solid var(--primary-soft);
+      border-radius: var(--r-lg);
+      padding: 22px 22px 22px;
+      margin-top: 18px;
+      box-shadow: var(--hairline-inset), 0 12px 32px rgba(124,108,255,0.10);
+      overflow: hidden;
+    }
+    .highlight-box::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(56,224,199,0.10), transparent 50%);
+      pointer-events: none;
+    }
+    .highlight-box .big-label {
+      font-size: 0.68rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--ink-muted); margin-bottom: 8px;
+      position: relative; z-index: 1;
+    }
+    .highlight-box .big-val {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: clamp(2.2rem, 7vw, 3rem);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      color: var(--ink-strong);
+      font-variant-numeric: tabular-nums;
+      position: relative; z-index: 1;
+    }
+    .highlight-box .big-sub {
+      font-size: 0.85rem; color: var(--ink-muted);
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
+      position: relative; z-index: 1;
+    }
+    .copy-btn {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      color: var(--ink-muted); cursor: pointer;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
+    .copy-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
+    /* Reverse calc uses accent (teal) primary instead of purple */
+    .highlight-box.accent-teal { border-color: rgba(56,224,199,0.30); }
+    .highlight-box.accent-teal .big-val { color: var(--accent); }
+
+    /* ── INFO BANNER ── */
+    .info-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 12px 14px; font-size: 0.85rem;
+      color: var(--ink); line-height: 1.6;
+      margin-top: 16px;
+    }
+    .info-banner strong { color: var(--ink-strong); font-weight: 600; }
+
+    /* ── LAYOUT ── */
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label.fld {
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    .btn {
+      padding: 12px 22px;
+      border-radius: var(--r-sm);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 0.92rem; font-weight: 600;
+      letter-spacing: -0.005em;
+      cursor: pointer;
+      transition: all var(--t-fast) var(--ease);
+      width: 100%;
+      min-height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: var(--primary); color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 8px 24px var(--primary-glow);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: var(--bg-raised); color: var(--ink);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--border-strong); background: var(--bg-elevated); }
+    .btn-sm {
+      padding: 8px 14px; border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all var(--t-fast) var(--ease);
+      min-height: 36px;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .btn-sm.danger:hover { border-color: var(--danger); color: var(--danger); background: rgba(255,91,114,0.10); }
+
+    .divider {
+      border: none; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+      margin: 22px 0;
+    }
+
+    /* ── PEPTIDE PILLS (preset list) ── */
+    .peptide-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .peptide-pill {
+      padding: 7px 13px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      font-family: inherit;
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .peptide-pill:hover { border-color: var(--border-strong); color: var(--ink); }
+    .peptide-pill.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* ── VIAL TRACKER ── */
+    .vial-list { display: flex; flex-direction: column; gap: 12px; }
+    .vial-item {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 18px;
+      display: flex; align-items: flex-start;
+      gap: 16px; flex-wrap: wrap;
+      box-shadow: var(--hairline-inset);
+    }
+    .vial-info { flex: 1; min-width: 180px; }
+    .vial-name {
+      font-weight: 700; font-size: 1.02rem; margin-bottom: 3px;
+      color: var(--ink-strong); letter-spacing: -0.01em;
+    }
+    .vial-detail {
+      font-size: 0.82rem; color: var(--ink-muted);
+      line-height: 1.55;
+      font-variant-numeric: tabular-nums;
+    }
+    .vial-detail strong { color: var(--accent); font-weight: 600; }
+    .vial-progress-wrap { flex: 1; min-width: 140px; }
+    .progress-bar-bg {
+      background: var(--bg-elevated);
+      border-radius: var(--r-pill);
+      height: 6px; overflow: hidden;
+      margin-bottom: 6px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .progress-bar-fill {
+      height: 100%; border-radius: var(--r-pill);
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width var(--t-slow) var(--ease);
+      box-shadow: 0 0 8px rgba(56,224,199,0.4);
+    }
+    .progress-label { font-size: 0.78rem; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+    .vial-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .vial-dose-edit {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 10px; flex-wrap: wrap;
+    }
+    .vial-dose-label { font-size: 0.76rem; color: var(--ink-muted); white-space: nowrap; font-weight: 500; }
+    .vial-dose-input {
+      width: 7ch; min-width: 7ch;
+      padding: 6px 8px; font-size: 0.88rem; font-weight: 600;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--accent);
+      transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .vial-dose-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      outline: none;
+    }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--ink-muted); font-size: 0.92rem;
+    }
+    .empty-state .big { font-size: 2.4rem; margin-bottom: 8px; opacity: 0.6; }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: var(--r-sm);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .tag-blue { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-soft); }
+
+    footer {
+      text-align: center; margin-top: 48px;
+      color: var(--ink-muted); font-size: 0.78rem; line-height: 1.7;
+    }
+    footer strong { color: var(--danger); }
+
+    /* ── CALC MODE TOGGLE ── */
+    .calc-mode-toggle {
+      display: flex; gap: 4px;
+      margin-bottom: 20px;
+      padding: 4px;
+      border-radius: var(--r-md);
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 11px 10px;
+      border: none;
+      border-radius: var(--r-sm);
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: inherit;
+      font-size: 0.88rem; font-weight: 600;
+      letter-spacing: -0.005em;
+      cursor: pointer;
+      transition: all var(--t-fast) var(--ease);
+      min-height: 40px;
+    }
+    .mode-btn:hover { color: var(--ink); }
+    .mode-btn.active {
+      background: var(--bg-elevated);
+      color: var(--ink-strong);
+      box-shadow: var(--hairline-inset), 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* ── BLEND PEPTIDE ROWS ── */
+    .blend-peptide-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      margin-bottom: 8px;
+      transition: border-color var(--t-fast) var(--ease);
+    }
+    .blend-peptide-row:focus-within { border-color: var(--border-strong); }
+    .blend-peptide-row .bp-name {
+      flex: 1; background: transparent; border: none;
+      color: var(--ink); font-size: 0.92rem; font-weight: 500;
+      outline: none; min-width: 0; padding: 4px 0;
+    }
+    .blend-peptide-row .bp-name::placeholder { color: var(--ink-quiet); }
+    .blend-peptide-row .bp-mg {
+      width: 88px;
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--accent); font-weight: 600;
+      font-size: 0.9rem; padding: 6px 8px; text-align: right; outline: none;
+      transition: border-color var(--t-fast) var(--ease);
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .blend-peptide-row .bp-mg:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .blend-peptide-row .bp-unit { font-size: 0.78rem; color: var(--ink-muted); white-space: nowrap; }
+    .blend-peptide-row .bp-remove {
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 6px; color: var(--ink-muted);
+      cursor: pointer; padding: 6px 9px; font-size: 0.82rem;
+      transition: all var(--t-fast) var(--ease); flex-shrink: 0;
+    }
+    .blend-peptide-row .bp-remove:hover { border-color: var(--danger); color: var(--danger); background: rgba(255,91,114,0.08); }
+
+    /* Blend breakdown + dosage tables share table styling */
+    .blend-breakdown, .dosage-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.86rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .blend-breakdown { margin-top: 14px; }
+    .blend-breakdown th, .dosage-table th {
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      text-align: left;
+      font-size: 0.66rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .blend-breakdown td, .dosage-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--ink);
+      vertical-align: middle;
+    }
+    .blend-breakdown tr:last-child td {
+      border-bottom: none; font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .blend-breakdown tr:not(:last-child):hover td { background: rgba(124,108,255,0.04); }
+    .dosage-table tr:last-child td { border-bottom: none; }
+    .dosage-table tr:hover td { background: rgba(124,108,255,0.04); }
+    .dosage-table td:first-child { color: var(--ink-muted); font-size: 0.82rem; }
+    .dosage-table td.highlight { color: var(--accent); font-weight: 700; }
+    .dosage-table { min-width: 420px; }
+
+    .blend-preset-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .blend-preset-pill {
+      padding: 9px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem; font-weight: 600;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .blend-preset-pill:hover { border-color: var(--border-strong); color: var(--ink); background: var(--bg-elevated); }
+    .blend-preset-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #062E26;
+      box-shadow: 0 0 0 4px var(--accent-soft), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .blend-total-bar {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      padding: 11px 14px;
+      font-size: 0.86rem;
+      color: var(--ink); margin: 12px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .blend-total-bar strong { color: var(--accent); font-weight: 700; }
+
+    /* No-result state */
+    #main-results { display: none; }
+    #blend-results { display: none; }
+
+    /* ── DOSAGE PROTOCOLS TAB ── */
+    .dosage-section { margin-bottom: 32px; }
+    .dosage-section-title {
+      font-size: 1.05rem; font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink-strong);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dosage-meta {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+      color: var(--ink); line-height: 1.7;
+      box-shadow: var(--hairline-inset);
+    }
+    .dosage-meta strong { color: var(--ink-strong); font-weight: 600; }
+    .protocol-label {
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--accent); margin: 18px 0 8px;
+    }
+    .dosage-table-wrap {
+      overflow-x: auto; margin-bottom: 10px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+    }
+    .dosage-note {
+      background: rgba(255,138,92,0.06);
+      border: 1px solid rgba(255,138,92,0.15);
+      border-left: 3px solid var(--warning);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 11px 14px;
+      font-size: 0.84rem; color: var(--ink);
+      line-height: 1.6; margin-top: 10px;
+    }
+    .dosage-note.danger {
+      background: rgba(255,91,114,0.06);
+      border-color: rgba(255,91,114,0.20);
+      border-left-color: var(--danger);
+    }
+    .dosage-divider {
+      border: none; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+      margin: 28px 0;
+    }
+    .quick-ref-table th { background: var(--primary-soft); color: var(--primary); }
+
+    /* ── CYCLE GUIDE TAB ── */
+    .cycle-filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .cycle-filter-btn {
+      padding: 8px 13px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem; font-weight: 600;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .cycle-filter-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+    .cycle-filter-btn.active { color: #fff; border-color: transparent; }
+
+    .cycle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .cycle-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--t-fast) var(--ease), transform var(--t-med) var(--ease);
+      box-shadow: var(--hairline-inset);
+    }
+    .cycle-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+    .cycle-card-accent {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      border-radius: var(--r-md) var(--r-md) 0 0;
+    }
+    .cycle-card-header {
+      display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+    }
+    .cycle-icon { font-size: 1.6rem; line-height: 1; min-width: 32px; text-align: center; }
+    .cycle-name {
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink-strong); margin-bottom: 3px;
+    }
+    .cycle-purpose { font-size: 0.78rem; color: var(--ink-muted); line-height: 1.45; }
+    .cycle-dose {
+      font-size: 0.82rem; color: var(--accent); font-weight: 600;
+      margin-bottom: 12px;
+      padding: 8px 11px;
+      background: var(--accent-soft);
+      border-radius: var(--r-sm);
+      border-left: 2px solid var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .cycle-duration-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .cycle-duration-text {
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--ink-muted);
+    }
+    .cycle-duration-val { font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cycle-bar-track {
+      height: 5px;
+      background: var(--bg-elevated);
+      border-radius: var(--r-pill);
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .cycle-bar-fill {
+      height: 100%; border-radius: var(--r-pill);
+      transition: width var(--t-slow) var(--ease);
+    }
+    .cycle-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--r-sm);
+      font-size: 0.66rem; font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      border: 1px solid currentColor;
+    }
+    .cycle-footer { display: flex; justify-content: flex-end; }
+    .cycle-use-btn {
+      padding: 7px 13px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.76rem; font-weight: 700;
+      letter-spacing: 0.02em;
+      transition: all var(--t-fast) var(--ease);
+    }
+    .cycle-use-btn:hover { background: var(--accent); border-color: var(--accent); color: #062E26; }
+    .cycle-card.hidden { display: none; }
+
+    .source-note {
+      font-size: 0.78rem; color: var(--ink-muted);
+      text-align: center; margin-top: 16px; font-style: italic;
+    }
+
+    /* ── TOAST ── */
+    .toast-stack {
+      position: fixed;
+      top: max(16px, env(safe-area-inset-top));
+      left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+      pointer-events: none;
+      width: min(420px, calc(100vw - 32px));
+    }
+    .toast {
+      pointer-events: auto;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--r-sm);
+      padding: 11px 14px;
+      font-size: 0.88rem; color: var(--ink);
+      box-shadow: var(--shadow-md);
+      display: flex; align-items: center; gap: 10px;
+      animation: toastIn var(--t-med) var(--ease);
+    }
+    .toast.danger  { border-left-color: var(--danger); }
+    .toast.warning { border-left-color: var(--warning); }
+    .toast svg { width: 16px; height: 16px; flex-shrink: 0; stroke: currentColor; fill: none; }
+    .toast.danger svg  { color: var(--danger); }
+    .toast.warning svg { color: var(--warning); }
+    .toast:not(.danger):not(.warning) svg { color: var(--accent); }
+    .toast.leaving { animation: toastOut var(--t-med) var(--ease) forwards; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(-8px); }
+    }
+
+    /* ── MOBILE BOTTOM TAB BAR ── */
+    @media (max-width: 720px) {
+      body {
+        padding-bottom: calc(78px + max(16px, env(safe-area-inset-bottom)));
+      }
+      .tabs {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        margin: 0;
+        padding: 4px 8px max(4px, env(safe-area-inset-bottom));
+        background: rgba(11, 13, 20, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid var(--border-subtle);
+        border-bottom: none;
+        justify-content: space-around;
+        z-index: 50;
+        overflow-x: visible;
+      }
+      .tab-btn {
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        padding: 8px 4px;
+        font-size: 0.66rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .tab-btn .tab-icon { width: 20px; height: 20px; }
+      .tab-indicator {
+        bottom: auto; top: 0;
+        height: 2px;
+        border-radius: 0 0 2px 2px;
+      }
+    }
+
+    /* ── REDUCED MOTION ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 <body>
+
+<!-- Icon sprite — line-style 24×24 — referenced via <svg><use href="#i-..."/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-syringe" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 2l4 4M16 4l4 4M14.5 5.5L18.5 9.5"/>
+      <path d="M16.5 7.5L9 15l-1.5-1.5L15 6"/>
+      <path d="M9 15l-4 4-3 1 1-3 4-4"/>
+      <path d="M11 13l2 2"/>
+    </symbol>
+    <symbol id="i-dna" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 3c0 5 16 5 16 0M4 21c0-5 16-5 16 0"/>
+      <path d="M4 8c0 3 16 5 16 8M20 8c0 3-16 5-16 8"/>
+      <path d="M7 5h10M7 19h10"/>
+    </symbol>
+    <symbol id="i-vial" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 2h8M9 2v15a3 3 0 006 0V2"/>
+      <path d="M9 12h6"/>
+      <circle cx="11.5" cy="15" r="0.6" fill="currentColor"/>
+      <circle cx="13.5" cy="13" r="0.6" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <path d="M14 2v6h6"/>
+      <path d="M8 13h8M8 17h6M8 9h2"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v5l3 2"/>
+    </symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="11" height="11" rx="2"/>
+      <path d="M5 15V5a2 2 0 012-2h10"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12l5 5L20 7"/>
+    </symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l10 18H2L12 3z"/>
+      <path d="M12 10v5M12 18h0"/>
+    </symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 11v5M12 8h0"/>
+    </symbol>
+  </defs>
+</svg>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<div class="toast-stack" id="toast-stack" role="status" aria-live="polite" aria-atomic="false"></div>
+
 <div class="max-w">
 
   <header>
-    <h1>⚗️ Peptide Reconstitution Calculator</h1>
-    <p>Select your dose, vial strength and water volume to get started</p>
+    <div class="brand-row">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <h1>Peptide Reconstitution Calculator</h1>
+    </div>
+    <p>Select your dose, vial strength and water volume to get started.</p>
   </header>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('calc',this)">💉 Calculator</button>
-    <button class="tab-btn" onclick="switchTab('presets',this)">🧬 Peptide Guide</button>
-    <button class="tab-btn" onclick="switchTab('vials',this)">📦 Vial Tracker</button>
-    <button class="tab-btn" onclick="switchTab('dosage',this)">📋 Dosage Protocols</button>
-    <button class="tab-btn" onclick="switchTab('cycles',this)">⏱️ Cycle Guide</button>
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab-btn" role="tab" id="tabbtn-calc"    aria-controls="tab-calc"    aria-selected="true"  data-tab="calc"    onclick="switchTab('calc',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-syringe"/></svg><span>Calculator</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-presets" aria-controls="tab-presets" aria-selected="false" data-tab="presets" tabindex="-1" onclick="switchTab('presets',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-dna"/></svg><span>Peptide Guide</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-vials"   aria-controls="tab-vials"   aria-selected="false" data-tab="vials"   tabindex="-1" onclick="switchTab('vials',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-vial"/></svg><span>Vial Tracker</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-dosage"  aria-controls="tab-dosage"  aria-selected="false" data-tab="dosage"  tabindex="-1" onclick="switchTab('dosage',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-doc"/></svg><span>Dosage</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-cycles"  aria-controls="tab-cycles"  aria-selected="false" data-tab="cycles"  tabindex="-1" onclick="switchTab('cycles',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Cycles</span></button>
+    <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
   </div>
 
-  <!-- TAB 1 — CALCULATOR -->
-  <div id="tab-calc" class="tab-content active">
+  <main id="main">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB 1 — MAIN CALCULATOR
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-calc" class="tab-content active" role="tabpanel" aria-labelledby="tabbtn-calc">
+
+    <!-- CALC MODE TOGGLE -->
     <div class="calc-mode-toggle">
       <button class="mode-btn active" onclick="switchCalcMode('single',this)">💊 Single Peptide</button>
       <button class="mode-btn" onclick="switchCalcMode('blend',this)">🧪 Blended / Stack</button>
     </div>
 
+  <!-- ── SINGLE PEPTIDE MODE ─────────────────────────────────── -->
   <div id="calc-mode-single">
     <div class="card">
       <div class="card-title">💉 How much to draw?</div>
+
+      <!-- STEP 1: DOSE -->
       <div class="selector-group">
         <span class="selector-label">① Dose of Peptide <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(how much you want to inject)</span></span>
         <div class="pill-row" id="dose-pills"></div>
@@ -55,6 +1084,8 @@
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
+
+      <!-- STEP 2: STRENGTH -->
       <div class="selector-group">
         <span class="selector-label">② Strength of Peptide <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(total mg in your vial)</span></span>
         <div class="pill-row" id="strength-pills"></div>
@@ -64,6 +1095,8 @@
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
+
+      <!-- STEP 3: WATER -->
       <div class="selector-group">
         <span class="selector-label">③ BAC Water Added <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(how much solvent to add)</span></span>
         <div class="pill-row" id="water-pills"></div>
@@ -73,51 +1106,93 @@
           <span style="color:var(--text2);font-size:0.88rem;">mL</span>
         </div>
       </div>
+
+      <!-- RESULTS -->
       <div id="main-results">
         <hr class="divider" />
+
+        <!-- Big highlight: units to draw -->
         <div class="highlight-box">
+          <button type="button" class="copy-btn" id="copy-main" aria-label="Copy result" title="Copy result">
+            <svg aria-hidden="true"><use href="#i-copy"/></svg>
+          </button>
           <div class="big-label">Draw syringe to</div>
           <div class="big-val" id="res-units">—</div>
           <div class="big-sub" id="res-units-sub">units on a U-100 insulin syringe</div>
         </div>
+
+        <!-- Syringe graphic -->
         <div class="syringe-wrap">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
-            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="50" x2="60" y2="50" stroke="#aaa" stroke-width="3" stroke-linecap="round"/>
-              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1a1d27" stroke="#4a4f70" stroke-width="2"/>
+            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="syringe-title-main">
+              <title id="syringe-title-main">U-100 insulin syringe showing the dose-fill mark</title>
+              <line x1="10" y1="50" x2="60" y2="50" stroke="#7A8099" stroke-width="3" stroke-linecap="round"/>
+              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1E2235" stroke="#3A4070" stroke-width="2"/>
               <rect x="60" y="28" width="0" height="44" rx="6" ry="6" fill="url(#fillGrad)" id="syringe-fill"/>
-              <g id="syringe-ticks" fill="none" stroke="#5a607a" stroke-width="1"></g>
-              <g id="syringe-labels" font-size="9" fill="#9094b0" text-anchor="middle" font-family="system-ui"></g>
-              <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
-              <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
-              <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs><linearGradient id="fillGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6c63ff"/><stop offset="100%" stop-color="#4ecdc4"/></linearGradient></defs>
+              <g id="syringe-ticks" fill="none" stroke="#5A5F7A" stroke-width="1"></g>
+              <g id="syringe-labels" font-size="9" fill="#8E93B1" text-anchor="middle" font-family="'JetBrains Mono', monospace"></g>
+              <rect x="520" y="20" width="14" height="60" rx="3" fill="#3A4070"/>
+              <rect x="534" y="28" width="26" height="44" rx="0" fill="#262B40" stroke="#3A4070" stroke-width="1.5"/>
+              <polygon points="10,45 10,55 2,50" fill="#8E93B1"/>
+              <defs>
+                <linearGradient id="fillGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#7C6CFF"/>
+                  <stop offset="100%" stop-color="#38E0C7"/>
+                </linearGradient>
+              </defs>
             </svg>
           </div>
-          <p id="syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
+          <p id="syringe-caption"></p>
         </div>
+
+        <!-- Stats row -->
         <div class="result-stats">
-          <div class="stat-box"><div class="stat-label">Peptide Dose</div><div class="stat-val" id="res-dose">—</div><div class="stat-unit">mg</div></div>
-          <div class="stat-box"><div class="stat-label">Concentration</div><div class="stat-val" id="res-conc">—</div><div class="stat-unit">mg/mL</div></div>
-          <div class="stat-box"><div class="stat-label">Volume to Draw</div><div class="stat-val" id="res-vol">—</div><div class="stat-unit">mL</div></div>
-          <div class="stat-box"><div class="stat-label">Doses per Vial</div><div class="stat-val" id="res-doses">—</div><div class="stat-unit">doses</div></div>
+          <div class="stat-box">
+            <div class="stat-label">Peptide Dose</div>
+            <div class="stat-val" id="res-dose">—</div>
+            <div class="stat-unit">mg</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Concentration</div>
+            <div class="stat-val" id="res-conc">—</div>
+            <div class="stat-unit">mg/mL</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Volume to Draw</div>
+            <div class="stat-val" id="res-vol">—</div>
+            <div class="stat-unit">mL</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Doses per Vial</div>
+            <div class="stat-val" id="res-doses">—</div>
+            <div class="stat-unit">doses</div>
+          </div>
         </div>
+
         <div class="info-banner" id="res-summary"></div>
       </div>
     </div>
-  </div>
+  </div><!-- /calc-mode-single -->
 
+  <!-- ── BLEND / STACK MODE ─────────────────────────────────────────── -->
   <div id="calc-mode-blend" style="display:none">
     <div class="card">
       <div class="card-title">🧪 Blended / Stack Calculator</div>
       <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Select a preset blend or build a custom stack. The calculator draws one syringe and breaks out each peptide's dose.</p>
+
+      <!-- Preset pills -->
       <span class="selector-label" style="margin-bottom:10px;display:block;">Select Preset</span>
       <div class="blend-preset-pills" id="blend-preset-pills"></div>
+
+      <!-- Peptide component rows -->
       <span class="selector-label" style="margin-bottom:8px;display:block;">Peptide Components</span>
       <div id="blend-peptide-rows"></div>
       <button class="btn btn-secondary" style="width:auto;padding:7px 16px;margin-top:2px;font-size:0.84rem;" onclick="addBlendPeptide()">+ Add Peptide</button>
+
       <div class="blend-total-bar" id="blend-total-bar" style="margin-top:14px;">Total vial: <strong>— mg</strong></div>
+
+      <!-- BAC Water -->
       <div class="selector-group" style="margin-top:20px;">
         <span class="selector-label">BAC Water Added</span>
         <div class="pill-row" id="blend-water-pills"></div>
@@ -127,101 +1202,161 @@
           <span style="color:var(--text2);font-size:0.88rem;">mL</span>
         </div>
       </div>
+
+      <!-- Total dose -->
       <div class="selector-group">
         <span class="selector-label">Total Dose per Injection <span style="color:var(--text2);font-size:0.8rem;font-weight:400;">(combined mg of all peptides)</span></span>
         <div class="custom-input-row" style="margin-top:4px;">
-          <input type="number" id="blend-dose-input" placeholder="e.g. 1.4" min="0" step="0.01" style="max-width:170px;" oninput="blendSetDose(parseFloat(this.value))" />
+          <input type="number" id="blend-dose-input" placeholder="e.g. 2.33" min="0" step="0.01" style="max-width:170px;" oninput="blendSetDose(parseFloat(this.value))" />
           <span style="color:var(--text2);font-size:0.88rem;">mg</span>
         </div>
       </div>
+
+      <!-- Results -->
       <div id="blend-results">
         <hr class="divider" />
+
         <div class="highlight-box">
+          <button type="button" class="copy-btn" id="copy-blend" aria-label="Copy blend result" title="Copy result">
+            <svg aria-hidden="true"><use href="#i-copy"/></svg>
+          </button>
           <div class="big-label">Draw syringe to</div>
           <div class="big-val" id="blend-res-units">—</div>
           <div class="big-sub" id="blend-res-units-sub">units on a U-100 insulin syringe</div>
         </div>
+
         <div class="syringe-wrap" style="margin-top:16px;">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
-            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="50" x2="60" y2="50" stroke="#aaa" stroke-width="3" stroke-linecap="round"/>
-              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1a1d27" stroke="#4a4f70" stroke-width="2"/>
+            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="syringe-title-blend">
+              <title id="syringe-title-blend">U-100 insulin syringe showing the blend dose-fill mark</title>
+              <line x1="10" y1="50" x2="60" y2="50" stroke="#7A8099" stroke-width="3" stroke-linecap="round"/>
+              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1E2235" stroke="#3A4070" stroke-width="2"/>
               <rect x="60" y="28" width="0" height="44" rx="6" ry="6" fill="url(#fillGrad3)" id="blend-syringe-fill"/>
-              <g id="blend-syringe-ticks" fill="none" stroke="#5a607a" stroke-width="1"></g>
-              <g id="blend-syringe-labels" font-size="9" fill="#9094b0" text-anchor="middle" font-family="system-ui"></g>
-              <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
-              <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
-              <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs><linearGradient id="fillGrad3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#f7971e"/></linearGradient></defs>
+              <g id="blend-syringe-ticks" fill="none" stroke="#5A5F7A" stroke-width="1"></g>
+              <g id="blend-syringe-labels" font-size="9" fill="#8E93B1" text-anchor="middle" font-family="'JetBrains Mono', monospace"></g>
+              <rect x="520" y="20" width="14" height="60" rx="3" fill="#3A4070"/>
+              <rect x="534" y="28" width="26" height="44" rx="0" fill="#262B40" stroke="#3A4070" stroke-width="1.5"/>
+              <polygon points="10,45 10,55 2,50" fill="#8E93B1"/>
+              <defs>
+                <linearGradient id="fillGrad3" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#FF8A5C"/>
+                  <stop offset="100%" stop-color="#FF5B72"/>
+                </linearGradient>
+              </defs>
             </svg>
           </div>
-          <p id="blend-syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
+          <p id="blend-syringe-caption"></p>
         </div>
+
         <div style="overflow-x:auto;margin-top:4px;">
           <table class="blend-breakdown">
-            <thead><tr><th>Peptide</th><th>Vial (mg)</th><th>Conc. (mg/mL)</th><th>Dose (mg)</th><th>Dose (mcg)</th></tr></thead>
+            <thead>
+              <tr><th>Peptide</th><th>Vial (mg)</th><th>Conc. (mg/mL)</th><th>Dose (mg)</th><th>Dose (mcg)</th></tr>
+            </thead>
             <tbody id="blend-breakdown-body"></tbody>
           </table>
         </div>
+
         <div class="info-banner" id="blend-summary" style="margin-top:16px;"></div>
       </div>
     </div>
-  </div>
+  </div><!-- /calc-mode-blend -->
 
+    <!-- REVERSE CALCULATOR -->
     <div class="card">
       <div class="card-title">🔄 Reverse Calculator — Units → Dose</div>
-      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Know how many units you drew? Enter them below to see the exact dose.</p>
+      <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Know how many units you drew? Enter them below to see the exact dose — completely independent of the calculator above.</p>
       <div class="grid grid-3">
-        <div class="field"><label class="fld">Units Drawn</label><input type="number" id="rev-units" placeholder="e.g. 25" min="0" step="0.5" oninput="calcReverse()" /></div>
-        <div class="field"><label class="fld">Vial Strength (mg)</label><input type="number" id="rev-strength" placeholder="e.g. 10" min="0" step="0.1" oninput="calcReverse()" /></div>
-        <div class="field"><label class="fld">BAC Water Added (mL)</label><input type="number" id="rev-water" placeholder="e.g. 2" min="0" step="0.1" oninput="calcReverse()" /></div>
+        <div class="field">
+          <label class="fld">Units Drawn</label>
+          <input type="number" id="rev-units" placeholder="e.g. 25" min="0" step="0.5" oninput="calcReverse()" />
+        </div>
+        <div class="field">
+          <label class="fld">Vial Strength (mg)</label>
+          <input type="number" id="rev-strength" placeholder="e.g. 10" min="0" step="0.1" oninput="calcReverse()" />
+        </div>
+        <div class="field">
+          <label class="fld">BAC Water Added (mL)</label>
+          <input type="number" id="rev-water" placeholder="e.g. 2" min="0" step="0.1" oninput="calcReverse()" />
+        </div>
       </div>
       <div id="rev-results" style="display:none;margin-top:18px;">
-        <div class="highlight-box" style="background:rgba(78,205,196,0.08);border-color:rgba(78,205,196,0.35);">
+
+        <!-- Big highlight -->
+        <div class="highlight-box accent-teal">
           <div class="big-label">At <span id="rev-display-units">—</span> units, your dose is</div>
-          <div class="big-val" id="rev-res-mg" style="color:var(--accent2)">—</div>
+          <div class="big-val" id="rev-res-mg">—</div>
           <div class="big-sub" id="rev-res-mcg-sub">— mcg</div>
         </div>
+
+        <!-- Reverse syringe visual -->
         <div class="syringe-wrap" style="margin-top:16px;">
           <h3>Visual Guide — U-100 Insulin Syringe</h3>
           <div class="syringe-svg-container">
-            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="50" x2="60" y2="50" stroke="#aaa" stroke-width="3" stroke-linecap="round"/>
-              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1a1d27" stroke="#4a4f70" stroke-width="2"/>
+            <svg class="syringe" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="syringe-title-rev">
+              <title id="syringe-title-rev">U-100 insulin syringe showing the units drawn</title>
+              <line x1="10" y1="50" x2="60" y2="50" stroke="#7A8099" stroke-width="3" stroke-linecap="round"/>
+              <rect x="60" y="28" width="460" height="44" rx="6" ry="6" fill="#1E2235" stroke="#3A4070" stroke-width="2"/>
               <rect x="60" y="28" width="0" height="44" rx="6" ry="6" fill="url(#fillGrad2)" id="rev-syringe-fill"/>
-              <g id="rev-syringe-ticks" fill="none" stroke="#5a607a" stroke-width="1"></g>
-              <g id="rev-syringe-labels" font-size="9" fill="#9094b0" text-anchor="middle" font-family="system-ui"></g>
-              <rect x="520" y="20" width="14" height="60" rx="3" fill="#4a4f70"/>
-              <rect x="534" y="28" width="26" height="44" rx="0" fill="#22263a" stroke="#4a4f70" stroke-width="1.5"/>
-              <polygon points="10,45 10,55 2,50" fill="#9094b0"/>
-              <defs><linearGradient id="fillGrad2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ecdc4"/><stop offset="100%" stop-color="#43e97b"/></linearGradient></defs>
+              <g id="rev-syringe-ticks" fill="none" stroke="#5A5F7A" stroke-width="1"></g>
+              <g id="rev-syringe-labels" font-size="9" fill="#8E93B1" text-anchor="middle" font-family="'JetBrains Mono', monospace"></g>
+              <rect x="520" y="20" width="14" height="60" rx="3" fill="#3A4070"/>
+              <rect x="534" y="28" width="26" height="44" rx="0" fill="#262B40" stroke="#3A4070" stroke-width="1.5"/>
+              <polygon points="10,45 10,55 2,50" fill="#8E93B1"/>
+              <defs>
+                <linearGradient id="fillGrad2" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#38E0C7"/>
+                  <stop offset="100%" stop-color="#3DDC97"/>
+                </linearGradient>
+              </defs>
             </svg>
           </div>
-          <p id="rev-syringe-caption" style="text-align:center;font-size:0.82rem;color:var(--text2);margin-top:10px;"></p>
+          <p id="rev-syringe-caption"></p>
         </div>
+
+        <!-- Stats row -->
         <div class="result-stats">
-          <div class="stat-box"><div class="stat-label">Dose (mg)</div><div class="stat-val" id="rev-res-mg-stat" style="color:var(--accent2)">—</div><div class="stat-unit">mg</div></div>
-          <div class="stat-box"><div class="stat-label">Dose (mcg)</div><div class="stat-val" id="rev-res-mcg">—</div><div class="stat-unit">mcg</div></div>
-          <div class="stat-box"><div class="stat-label">Volume</div><div class="stat-val" id="rev-res-ml">—</div><div class="stat-unit">mL</div></div>
-          <div class="stat-box"><div class="stat-label">Concentration</div><div class="stat-val" id="rev-res-conc">—</div><div class="stat-unit">mg/mL</div></div>
+          <div class="stat-box">
+            <div class="stat-label">Dose (mg)</div>
+            <div class="stat-val" id="rev-res-mg-stat" style="color:var(--accent2)">—</div>
+            <div class="stat-unit">mg</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Dose (mcg)</div>
+            <div class="stat-val" id="rev-res-mcg">—</div>
+            <div class="stat-unit">mcg</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Volume</div>
+            <div class="stat-val" id="rev-res-ml">—</div>
+            <div class="stat-unit">mL</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Concentration</div>
+            <div class="stat-val" id="rev-res-conc">—</div>
+            <div class="stat-unit">mg/mL</div>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- HOW IT WORKS -->
     <div class="card">
       <div class="card-title" style="margin-bottom:12px">📖 How to use this calculator</div>
       <div style="font-size:0.88rem;color:var(--text2);line-height:1.7;">
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">① Dose</strong> — The amount of peptide you want <em>per injection</em>.</p>
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">② Strength</strong> — The total amount of peptide <em>in your vial</em>, printed on the label.</p>
-        <p style="margin-bottom:10px;"><strong style="color:var(--text)">③ BAC Water</strong> — How much Bacteriostatic Water you will <em>inject into the vial</em> to dissolve the peptide powder.</p>
-        <p><strong style="color:var(--text)">Result</strong> — The calculator tells you how many units to draw on a standard <strong style="color:var(--accent)">U-100 insulin syringe</strong>.</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">① Dose</strong> — This is the amount of peptide you want <em>per injection</em>. Check your protocol for the recommended dose (e.g. 250 mcg = 0.25 mg).</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">② Strength</strong> — This is the total amount of peptide <em>in your vial</em>, printed on the label (e.g. 5 mg, 10 mg).</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--text)">③ BAC Water</strong> — This is how much Bacteriostatic Water (BAC water) or sterile water you will <em>inject into the vial</em> to dissolve the peptide powder.</p>
+        <p><strong style="color:var(--text)">Result</strong> — The calculator tells you how many units to draw on a standard <strong style="color:var(--accent)">U-100 insulin syringe</strong> to get your desired dose.</p>
       </div>
     </div>
   </div>
 
-  <!-- TAB 2 — PEPTIDE GUIDE -->
-  <div id="tab-presets" class="tab-content">
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB 2 — PEPTIDE GUIDE
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-presets" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-presets" hidden>
     <div class="card">
       <div class="card-title">🧬 Common Peptide Reference</div>
       <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Select a peptide to view typical dosing and reconstitution info. Use the button to pre-fill the calculator.</p>
@@ -230,82 +1365,159 @@
     </div>
   </div>
 
-  <!-- TAB 3 — VIAL TRACKER -->
-  <div id="tab-vials" class="tab-content">
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB 3 — VIAL TRACKER
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-vials" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-vials" hidden>
     <div class="card">
       <div class="card-title">➕ Add Vial</div>
       <div class="grid grid-2">
-        <div class="field"><label class="fld">Peptide Name</label><input type="text" id="v-name" placeholder="e.g. BPC-157" /></div>
-        <div class="field"><label class="fld">Vial Size (mg)</label><input type="number" id="v-vial-mg" placeholder="e.g. 5" min="0" step="0.1" /></div>
+        <div class="field">
+          <label class="fld">Peptide Name</label>
+          <input type="text" id="v-name" placeholder="e.g. BPC-157" />
+        </div>
+        <div class="field">
+          <label class="fld">Vial Size (mg)</label>
+          <input type="number" id="v-vial-mg" placeholder="e.g. 5" min="0" step="0.1" />
+        </div>
       </div>
       <div class="grid grid-2" style="margin-top:14px;">
-        <div class="field"><label class="fld">BAC Water Added (mL)</label><input type="number" id="v-water-ml" placeholder="e.g. 2" min="0" step="0.1" /></div>
-        <div class="field"><label class="fld">Dose per Injection (mg)</label><input type="number" id="v-dose-mg" placeholder="e.g. 0.25" min="0" step="0.01" /></div>
+        <div class="field">
+          <label class="fld">BAC Water Added (mL)</label>
+          <input type="number" id="v-water-ml" placeholder="e.g. 2" min="0" step="0.1" />
+        </div>
+        <div class="field">
+          <label class="fld">Dose per Injection (mg)</label>
+          <input type="number" id="v-dose-mg" placeholder="e.g. 0.25" min="0" step="0.01" />
+        </div>
       </div>
-      <div class="field" style="margin-top:14px;"><label class="fld">Notes (optional)</label><input type="text" id="v-notes" placeholder="e.g. 2x daily, morning and evening" /></div>
+      <div class="field" style="margin-top:14px;">
+        <label class="fld">Notes (optional)</label>
+        <input type="text" id="v-notes" placeholder="e.g. 2x daily, morning and evening" />
+      </div>
       <button class="btn btn-primary" onclick="addVial()" style="margin-top:14px;">+ Add Vial to Tracker</button>
     </div>
+
     <div class="card">
       <div class="card-title">📋 Active Vials</div>
-      <div id="vial-list" class="vial-list"><div class="empty-state"><div class="big">💊</div><div>No vials tracked yet. Add one above to get started.</div></div></div>
+      <div id="vial-list" class="vial-list">
+        <div class="empty-state">
+          <div class="big">💊</div>
+          <div>No vials tracked yet. Add one above to get started.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- TAB 4 — DOSAGE PROTOCOLS -->
-  <div id="tab-dosage" class="tab-content">
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB 4 — DOSAGE PROTOCOLS
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-dosage" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-dosage" hidden>
+
     <div class="card">
 
       <!-- 1. RETATRUTIDE -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 1. Retatrutide — 10 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 1.0 mL bacteriostatic water → ~10.0 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 100 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once weekly (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 insulin</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 1.0 mL bacteriostatic water → ~10.0 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 100 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once weekly (SubQ) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin
+        </div>
+
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead><tbody>
-          <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 9–12</td><td class="highlight">6 mg (6,000 mcg)</td><td>60 units</td><td>0.60 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 13+</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
-        </tbody></table></div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 9–12</td><td class="highlight">6 mg (6,000 mcg)</td><td>60 units</td><td>0.60 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 13+</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="protocol-label">Advanced / Aggressive Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead><tbody>
-          <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 9–12</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
-          <tr><td>Weeks 13+</td><td class="highlight">12 mg (12,000 mcg)</td><td>120 units</td><td>1.20 mL</td><td><strong style="color:var(--warning)">2 vials per dose</strong></td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">The 12 mg dose requires 2 vials; draw 1.20 mL total and split into 2 injections at different sites. Cycle: minimum 24 weeks.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 9–12</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 13+</td><td class="highlight">12 mg (12,000 mcg)</td><td>120 units</td><td>1.20 mL</td><td><strong style="color:var(--warning)">2 vials per dose</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">The 12 mg dose requires 2 vials (each reconstituted with 1.0 mL); draw 1.20 mL total and split into 2 separate injections at different sites. Cycle length: minimum 24 weeks; trials ran up to 48 weeks.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- 2. WOLVERINE STACK -->
+      <!-- 2. BPC-157 + TB-500 -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 2. BPC-157 + TB-500 (Wolverine Stack) — 20 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL total (~3.33 mg/mL per peptide) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg total &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
+        <div class="dosage-section-title">💊 2. BPC-157 + TB-500 (Blend) — 20 mg Vial</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL total (~3.33 mg/mL per peptide) &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg total (~33.3 mcg each) &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 (use 30- or 50-unit for Weeks 1–4 for precision)
+        </div>
+
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose (Total)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">500 mcg (0.5 mg)</td><td>~250 mcg each</td><td>7.5 units</td><td>0.075 mL</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">750 mcg (0.75 mg)</td><td>~375 mcg each</td><td>11.25 units</td><td>0.1125 mL</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Cycle: 4–8 weeks on, optional 6-week break between courses. One 20 mg vial = 20 doses at 1 mg/dose.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose (Total Blend)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">500 mcg (0.5 mg)</td><td>~250 mcg each</td><td>7.5 units</td><td>0.075 mL</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">666 mcg (0.67 mg)</td><td>~333 mcg each</td><td>10 units</td><td>0.10 mL</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="protocol-label">Advanced / Loading Protocol (Optional)</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose (Total Blend)</th><th>Per-Peptide Dose</th><th>Units / Injection</th><th>Volume (mL)</th></tr></thead>
+            <tbody>
+              <tr><td>Loading — Weeks 1–4</td><td class="highlight">1,500 mcg (1.5 mg)</td><td>~750 mcg each</td><td>22.5 units</td><td>0.225 mL</td></tr>
+              <tr><td>Maintenance — Weeks 5–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>~500 mcg each</td><td>15 units</td><td>0.15 mL</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">Cycle: 4–8 weeks on, with an optional 6-week break between courses.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- 3. GLOW STACK -->
+      <!-- 3. GLOW -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 3. GLOW Stack (GHK-Cu + TB-500 + BPC-157) — 70 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add <strong>10 mL</strong> bacteriostatic water → 7.0 mg/mL total &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL = 70 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
-        <div class="dosage-note" style="margin-bottom:14px;">💡 <strong>Why 10 mL BAC water?</strong> The GLOW Stack is the ONLY peptide in this protocol that uses 10 mL. Using 10 mL of Bacteriostatic Water significantly reduces the sting on injection — this is our recommended approach.</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add <strong>10 mL</strong> bacteriostatic water → 7.0 mg/mL total &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 70 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 &nbsp;|&nbsp;
+          <strong>Storage:</strong> Refrigerate; use within 4 weeks
+        </div>
+        <div class="dosage-note" style="margin-bottom:14px;">💡 <strong>Why 10 mL BAC water?</strong> Using 10 mL of Bacteriostatic Water (rather than sterile water or a smaller volume) significantly reduces the sting on injection — this is our recommended approach.</div>
+
         <div class="protocol-label">Our Recommended Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">700 mcg (0.7 mg)</td><td>10 units</td><td>0.10 mL</td><td>Starting dose — assess tolerance</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">1,050 mcg (1.05 mg)</td><td>15 units</td><td>0.15 mL</td><td>Step up</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">1,400 mcg (1.4 mg)</td><td>20 units</td><td>0.20 mL</td><td>Maintenance dose</td></tr>
-          <tr><td>Weeks 9–12 (optional)</td><td class="highlight">2,100 mcg (2.1 mg)</td><td>30 units</td><td>0.30 mL</td><td>Higher dose cycle</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">One 70 mg vial gives 100 doses at 10 units (0.7 mg/dose) or ~50 doses at 20 units (1.4 mg/dose). Cycle: 8–12 weeks on, 4-week rest.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">700 mcg (0.7 mg)</td><td>10 units</td><td>0.10 mL</td><td>Starting dose — assess tolerance</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">1,050 mcg (1.05 mg)</td><td>15 units</td><td>0.15 mL</td><td>Step up</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">1,400 mcg (1.4 mg)</td><td>20 units</td><td>0.20 mL</td><td>Maintenance dose</td></tr>
+              <tr><td>Weeks 9–12 (optional)</td><td class="highlight">2,100 mcg (2.1 mg)</td><td>30 units</td><td>0.30 mL</td><td>Higher dose cycle</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">One 70 mg vial reconstituted with 10 mL gives 100 doses at 10 units (0.7 mg/dose), or ~50 doses at 20 units (1.4 mg/dose). Cycle: 8–12 weeks on, 4-week rest before repeating.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -313,18 +1525,35 @@
       <!-- 4. GHK-Cu -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 4. GHK-Cu — 50 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL sterile/bacteriostatic water → ~16.67 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 167 mcg &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Use within 30 days</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL sterile/bacteriostatic water → ~16.67 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 167 mcg &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 (30- or 50-unit recommended for lower volumes) &nbsp;|&nbsp;
+          <strong>Storage:</strong> Use reconstituted solution within 30 days
+        </div>
+
         <div class="protocol-label">Standard / Conservative Protocol (5 days/week)</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead><tbody>
-          <tr><td>Weeks 1–4</td><td class="highlight">1.0 mg (1,000 mcg)</td><td>6 units</td><td>0.06 mL</td><td>5 days/week</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">1.5 mg (1,500 mcg)</td><td>9 units</td><td>0.09 mL</td><td>5 days/week</td></tr>
-          <tr><td>Weeks 9–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>5 days/week</td></tr>
-        </tbody></table></div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–4</td><td class="highlight">1.0 mg (1,000 mcg)</td><td>6 units</td><td>0.06 mL</td><td>5 days/week</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">1.5 mg (1,500 mcg)</td><td>9 units</td><td>0.09 mL</td><td>5 days/week</td></tr>
+              <tr><td>Weeks 9–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>5 days/week</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="protocol-label">Alternative Protocol (3× per week)</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead><tbody>
-          <tr><td>Weeks 1–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>3×/week (Mon/Wed/Fri)</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Cycle: 8–12 weeks, extendable to 16 weeks. Both protocols deliver ~6 mg/week at maintenance.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–12+</td><td class="highlight">2.0 mg (2,000 mcg)</td><td>12 units</td><td>0.12 mL</td><td>3×/week (Mon/Wed/Fri)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">Cycle: 8–12 weeks typical, extendable to 16 weeks. Both protocols deliver ~6 mg/week at maintenance.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -332,16 +1561,28 @@
       <!-- 5. MELANOTAN II -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 5. Melanotan II — 10 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily during loading; 1–2×/week maintenance &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily (SubQ) during loading; then 1–2×/week maintenance &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 &nbsp;|&nbsp;
+          <strong>Storage:</strong> Use within 1–2 weeks
+        </div>
+
         <div class="protocol-label">Standard / Gradual Titration Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Week 1</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Use 30- or 50-unit syringe</td></tr>
-          <tr><td>Week 2</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>—</td></tr>
-          <tr><td>Week 3</td><td class="highlight">750 mcg (0.75 mg)</td><td>22.5 units</td><td>0.225 mL</td><td>—</td></tr>
-          <tr><td>Weeks 4–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>Loading phase</td></tr>
-          <tr><td>Maintenance</td><td class="highlight">500–1,000 mcg</td><td>15–30 units</td><td>0.15–0.30 mL</td><td>1–2×/week only</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Safety Warning:</strong> Do <strong>not</strong> exceed 2 mg/day. Serious systemic toxicity reported at 6 mg. Monitor moles and skin regularly.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Week 1</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Use 30- or 50-unit syringe</td></tr>
+              <tr><td>Week 2</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>—</td></tr>
+              <tr><td>Week 3</td><td class="highlight">750 mcg (0.75 mg)</td><td>22.5 units</td><td>0.225 mL</td><td>—</td></tr>
+              <tr><td>Weeks 4–8</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>Loading phase</td></tr>
+              <tr><td>Maintenance (post Week 8)</td><td class="highlight">500–1,000 mcg</td><td>15–30 units</td><td>0.15–0.30 mL</td><td>1–2×/week only</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Safety Warning:</strong> Do <strong>not</strong> exceed 2 mg/day. Serious systemic toxicity and rhabdomyolysis have been reported at 6 mg. Monitor moles and skin for changes regularly.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -349,14 +1590,26 @@
       <!-- 6. PT-141 -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 6. PT-141 (Bremelanotide) — 10 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> As needed &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Use within ~30 days</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~3.33 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 (27–30G, 5/8-inch needle) &nbsp;|&nbsp;
+          <strong>Storage:</strong> Use within ~30 days; avoid freeze–thaw cycles
+        </div>
+
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Starting dose</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>45–90 min before activity</td></tr>
-          <tr><td>Standard dose</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>—</td></tr>
-          <tr><td>Max dose</td><td class="highlight">1,750 mcg (1.75 mg)</td><td>52.5 units</td><td>0.525 mL</td><td>FDA-approved Vyleesi dose</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Max 8 doses/month. Monitor for nausea, flushing, and transient blood pressure changes.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–8</td><td class="highlight">500 mcg (0.5 mg)</td><td>15 units</td><td>0.15 mL</td><td>~3 vials total</td></tr>
+              <tr><td>Weeks 9–12</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>30 units</td><td>0.30 mL</td><td>~3 vials total</td></tr>
+              <tr><td>Weeks 13–16</td><td class="highlight">1,500 mcg (1.5 mg)</td><td>45 units</td><td>0.45 mL</td><td>~4 vials total</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">The FDA-approved on-demand dose (Vyleesi) is 1.75 mg SC before intercourse, max 8 doses/month. This daily research protocol titrates conservatively below that threshold. Monitor for nausea, flushing, and transient blood pressure changes.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -364,19 +1617,37 @@
       <!-- CJC-1295 No DAC -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 CJC-1295 No DAC — 5 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → 1.67 mg/mL (1,667 mcg/mL) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.7 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 2.5 mg/mL (2,500 mcg/mL) &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 25 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
+          <strong>Storage:</strong> Refrigerate; use within 4 weeks
+        </div>
+
         <div class="protocol-label">Standard Titration Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">100 mcg (0.1 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted, 30 min before sleep</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">200 mcg (0.2 mg)</td><td>12 units</td><td>0.12 mL</td><td>Fasted, 30 min before sleep</td></tr>
-          <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>18 units</td><td>0.18 mL</td><td>Fasted — sleep or pre-training</td></tr>
-        </tbody></table></div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">100 mcg (0.1 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">200 mcg (0.2 mg)</td><td>8 units</td><td>0.08 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>12 units</td><td>0.12 mL</td><td>Fasted — sleep or pre-training</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="protocol-label">CJC-1295 + Ipamorelin Stack (Recommended — 1:1 ratio)</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Peptide</th><th>Dose / Injection</th><th>Units</th><th>Volume (mL)</th><th>Draw into same syringe?</th></tr></thead><tbody>
-          <tr><td>CJC-1295 No DAC</td><td class="highlight">300 mcg</td><td>18 units</td><td>0.18 mL</td><td rowspan="2" style="color:var(--success);font-weight:600;">✓ Yes — draw CJC first, then Ipamorelin</td></tr>
-          <tr><td>Ipamorelin</td><td class="highlight">300 mcg</td><td>9 units</td><td>0.09 mL</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Cycle: 12–16 weeks on, 4–8 weeks off. Take on an empty stomach — avoid food 2 hours before and 30 min after. One 5 mg CJC-1295 vial gives ~16 doses at 300 mcg.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Peptide</th><th>Dose / Injection</th><th>Units</th><th>Volume (mL)</th><th>Draw into same syringe?</th></tr></thead>
+            <tbody>
+              <tr><td>CJC-1295 No DAC</td><td class="highlight">300 mcg</td><td>12 units</td><td>0.12 mL</td><td rowspan="2" style="color:var(--success);font-weight:600;">✓ Yes — draw CJC first, then Ipamorelin into the same syringe</td></tr>
+              <tr><td>Ipamorelin</td><td class="highlight">300 mcg</td><td>6 units</td><td>0.06 mL</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">Cycle: 12–16 weeks on, 4–8 weeks off. Take on an empty stomach — avoid food 2 hours before and 30 min after injecting. CJC-1295 acts as the GHRH signal and Ipamorelin acts as the GHRP pulse, together producing a stronger and more natural GH release than either alone. One 5 mg vial of CJC-1295 gives ~16 doses at 300 mcg.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -384,107 +1655,163 @@
       <!-- IPAMORELIN -->
       <div class="dosage-section">
         <div class="dosage-section-title">💊 Ipamorelin — 10 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → 3.33 mg/mL (3,333 mcg/mL) &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Refrigerate; use within 4 weeks</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 5.0 mg/mL (5,000 mcg/mL) &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 50 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
+          <strong>Storage:</strong> Refrigerate; use within 4 weeks
+        </div>
+
         <div class="protocol-label">Standard Titration Protocol (Solo)</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted, 30 min before sleep</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Fasted, 30 min before sleep</td></tr>
-          <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>9 units</td><td>0.09 mL</td><td>Fasted — sleep or pre-training</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">One 10 mg vial gives ~33 doses at 300 mcg or 50 doses at 200 mcg. Cycle: 12–16 weeks on, 4–8 weeks off. Highly selective — minimal cortisol, prolactin, or appetite side effects.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">250 mcg (0.25 mg)</td><td>5 units</td><td>0.05 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted — sleep or pre-training</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">One 10 mg vial (at 5 mg/mL) gives ~33 doses at 300 mcg or 50 doses at 200 mcg. Cycle: 12–16 weeks on, 4–8 weeks off. Best stacked with CJC-1295 No DAC (see above). Ipamorelin is highly selective — minimal cortisol, prolactin, or appetite side effects compared to older GHRP peptides like GHRP-6.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- QUICK REFERENCE -->
+      <!-- QUICK REFERENCE SUMMARY -->
       <div class="dosage-section">
         <div class="dosage-section-title">📊 Quick Reference Summary</div>
-        <div class="dosage-table-wrap"><table class="dosage-table quick-ref-table"><thead><tr><th>Peptide</th><th>Vial Size</th><th>BAC Water</th><th>Concentration</th><th>Frequency</th><th>Starting Dose</th><th>Max Dose</th></tr></thead><tbody>
-          <tr><td>Retatrutide</td><td>10 mg</td><td>1.0 mL</td><td>10.0 mg/mL</td><td>1×/week</td><td class="highlight">2 mg</td><td>12 mg</td></tr>
-          <tr><td>GLOW Stack ⭐</td><td>70 mg</td><td>10.0 mL</td><td>7.0 mg/mL</td><td>Daily</td><td class="highlight">700 mcg (10 units)</td><td>2,100 mcg (30 units)</td></tr>
-          <tr><td>Wolverine Stack</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">500 mcg (7.5 units)</td><td>1,000 mcg (15 units)</td></tr>
-          <tr><td>CJC-1295 No DAC</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">100 mcg (6 units)</td><td>300 mcg (18 units)</td></tr>
-          <tr><td>Ipamorelin</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">200 mcg (6 units)</td><td>300 mcg (9 units)</td></tr>
-          <tr><td>Tirzepatide</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>1×/week</td><td class="highlight">2.5 mg</td><td>15 mg</td></tr>
-          <tr><td>PT-141</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>As needed</td><td class="highlight">500 mcg</td><td>1,750 mcg</td></tr>
-          <tr><td>Melanotan II</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily → 1–2×/week</td><td class="highlight">250 mcg</td><td>1,000–2,000 mcg</td></tr>
-          <tr><td>GHK-Cu</td><td>50 mg</td><td>3.0 mL</td><td>16.67 mg/mL</td><td>5×/week or 3×/week</td><td class="highlight">1.0 mg</td><td>2.0 mg</td></tr>
-          <tr><td>MOTS-C</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">200 mcg</td><td>1,000 mcg</td></tr>
-          <tr><td>AOD-9604</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>Daily (fasted)</td><td class="highlight">300 mcg</td><td>500 mcg</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note" style="margin-top:10px;">⭐ GLOW Stack is the ONLY peptide in this guide using 10 mL BAC water — the higher dilution significantly reduces injection sting.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table quick-ref-table">
+            <thead><tr><th>Peptide</th><th>Vial Size</th><th>BAC Water</th><th>Concentration</th><th>Frequency</th><th>Starting Dose</th><th>Max Dose</th></tr></thead>
+            <tbody>
+              <tr><td>Retatrutide</td><td>10 mg</td><td>1.0 mL</td><td>10.0 mg/mL</td><td>1×/week</td><td class="highlight">2 mg</td><td>12 mg</td></tr>
+              <tr><td>GLOW Stack</td><td>70 mg</td><td>10.0 mL ⭐</td><td>7.0 mg/mL</td><td>Daily</td><td class="highlight">700 mcg (10 units)</td><td>2,100 mcg (30 units)</td></tr>
+              <tr><td>Wolverine Stack (BPC+TB)</td><td>20 mg</td><td>4.0 mL</td><td>5.0 mg/mL</td><td>Daily</td><td class="highlight">500 mcg (10 units)</td><td>1,000 mcg (20 units)</td></tr>
+              <tr><td>CJC-1295 No DAC</td><td>5 mg</td><td>2.0 mL</td><td>2.5 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">100 mcg (4 units)</td><td>300 mcg (12 units)</td></tr>
+              <tr><td>Ipamorelin</td><td>10 mg</td><td>2.0 mL</td><td>5.0 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">200 mcg (4 units)</td><td>300 mcg (6 units)</td></tr>
+              <tr><td>Tirzepatide</td><td>5 mg</td><td>10.0 mL</td><td>0.5 mg/mL</td><td>1×/week</td><td class="highlight">2.5 mg</td><td>15 mg</td></tr>
+              <tr><td>PT-141</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>As needed</td><td class="highlight">500 mcg</td><td>2,000 mcg</td></tr>
+              <tr><td>Melanotan II</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily → 1–2×/week</td><td class="highlight">250 mcg</td><td>1,000–2,000 mcg</td></tr>
+              <tr><td>GHK-Cu</td><td>50 mg</td><td>3.0 mL</td><td>16.67 mg/mL</td><td>5×/week or 3×/week</td><td class="highlight">1.0 mg</td><td>2.0 mg</td></tr>
+              <tr><td>MOTS-C</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">200 mcg</td><td>1,000 mcg</td></tr>
+              <tr><td>AOD-9604</td><td>5 mg</td><td>3.0 mL</td><td>1.67 mg/mL</td><td>Daily (fasted)</td><td class="highlight">300 mcg</td><td>500 mcg</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note" style="margin-top:10px;">⭐ <strong>GLOW Stack is the only peptide reconstituted with 10 mL BAC water.</strong> All other peptides use the standard 3 mL. The extra dilution is deliberate — the GLOW blend can sting noticeably at 3 mL; 10 mL reduces this significantly on injection.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- AOD-9604 -->
+      <!-- 7. AOD-9604 -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 AOD-9604 — 5 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily, fasted (morning) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
+        <div class="dosage-section-title">💊 7. AOD-9604 — 5 mg Vial</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily, fasted (morning) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
+          <strong>Storage:</strong> Refrigerate; use within 30–45 days
+        </div>
         <div class="protocol-label">Standard / Gradual Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Weeks 1–4</td><td class="highlight">300 mcg (0.3 mg)</td><td>18 units</td><td>0.18 mL</td><td>Titration phase</td></tr>
-          <tr><td>Weeks 5–12</td><td class="highlight">500 mcg (0.5 mg)</td><td>30 units</td><td>0.30 mL</td><td>Full dose — inject fasted AM</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Cycle: 8–12 weeks on, 4-week break. One 5 mg vial covers ~10 days at 500 mcg/day.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–4</td><td class="highlight">300 mcg (0.3 mg)</td><td>18 units</td><td>0.18 mL</td><td>Titration phase — assess tolerance</td></tr>
+              <tr><td>Weeks 5–12</td><td class="highlight">500 mcg (0.5 mg)</td><td>30 units</td><td>0.30 mL</td><td>Full dose — inject fasted AM</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">Inject subcutaneously in the abdominal region each morning on an empty stomach for optimal lipolytic effect. Cycle: 8–12 weeks on, 4-week break. One 5 mg vial covers ~10 days at 500 mcg/day. Placebo-like safety profile in clinical trials.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- MOTS-C -->
+      <!-- 8. MOTS-C 20mg -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 MOTS-C — 20 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp; <strong>Syringe:</strong> U-100 &nbsp;|&nbsp; <strong>Storage:</strong> Freeze lyophilized; refrigerate after reconstitution, use within 7 days</div>
+        <div class="dosage-section-title">💊 8. MOTS-C — 20 mg Vial</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~6.67 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 66.7 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> Once daily (SubQ) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
+          <strong>Storage:</strong> Freeze lyophilized; refrigerate after reconstitution, use within 7 days
+        </div>
         <div class="protocol-label">Standard Titration Protocol</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>3 units</td><td>0.03 mL</td><td>Starting dose — use 30-unit syringe</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">400 mcg (0.4 mg)</td><td>6 units</td><td>0.06 mL</td><td>—</td></tr>
-          <tr><td>Weeks 5–6</td><td class="highlight">600 mcg (0.6 mg)</td><td>9 units</td><td>0.09 mL</td><td>—</td></tr>
-          <tr><td>Weeks 7–8</td><td class="highlight">800 mcg (0.8 mg)</td><td>12 units</td><td>0.12 mL</td><td>—</td></tr>
-          <tr><td>Weeks 9–12+</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>15 units</td><td>0.15 mL</td><td>Maintenance dose</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note">Titrate slowly — hold each dose 2 weeks before escalating. One 20 mg vial covers ~20 days at 1,000 mcg/day.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>3 units</td><td>0.03 mL</td><td>Starting dose — use 30-unit syringe for precision</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">400 mcg (0.4 mg)</td><td>6 units</td><td>0.06 mL</td><td>—</td></tr>
+              <tr><td>Weeks 5–6</td><td class="highlight">600 mcg (0.6 mg)</td><td>9 units</td><td>0.09 mL</td><td>—</td></tr>
+              <tr><td>Weeks 7–8</td><td class="highlight">800 mcg (0.8 mg)</td><td>12 units</td><td>0.12 mL</td><td>—</td></tr>
+              <tr><td>Weeks 9–12+</td><td class="highlight">1,000 mcg (1.0 mg)</td><td>15 units</td><td>0.15 mL</td><td>Maintenance dose</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note">Titrate slowly — hold each dose for 2 weeks before escalating. One 20 mg vial covers ~20 days at the 1,000 mcg maintenance dose. Limited human clinical data available; based on research protocols. Monitor tolerance at each step.</div>
       </div>
 
       <hr class="dosage-divider" />
 
-      <!-- SLU-PP-332 -->
+      <!-- 9. SLU-PP-332 -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 SLU-PP-332 — 5 mg Vial</div>
-        <div class="dosage-meta"><strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp; <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp; <strong>Frequency:</strong> 1–2× daily &nbsp;|&nbsp; <strong>Syringe:</strong> U-100</div>
+        <div class="dosage-section-title">💊 9. SLU-PP-332 — 5 mg Vial</div>
+        <div class="dosage-meta">
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → ~1.667 mg/mL &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 16.67 mcg &nbsp;|&nbsp;
+          <strong>Frequency:</strong> 1–2× daily (split dosing preferred) &nbsp;|&nbsp;
+          <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
+          <strong>Storage:</strong> Refrigerate; use within 30 days
+        </div>
         <div class="protocol-label">Research Protocol (Titration)</div>
-        <div class="dosage-table-wrap"><table class="dosage-table"><thead><tr><th>Phase</th><th>Daily Dose (Total)</th><th>Per Injection</th><th>Units / Injection</th><th>Volume / Injection</th></tr></thead><tbody>
-          <tr><td>Weeks 1–2</td><td class="highlight">500 mcg</td><td>250 mcg (×2)</td><td>15 units</td><td>0.15 mL</td></tr>
-          <tr><td>Weeks 3–4</td><td class="highlight">750 mcg</td><td>375 mcg (×2)</td><td>22.5 units</td><td>0.225 mL</td></tr>
-          <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg</td><td>500 mcg (×2)</td><td>30 units</td><td>0.30 mL</td></tr>
-        </tbody></table></div>
-        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Research Only:</strong> SLU-PP-332 has <strong>not</strong> been tested in human subjects. All evidence from murine models. For educational reference only.</div>
+        <div class="dosage-table-wrap">
+          <table class="dosage-table">
+            <thead><tr><th>Phase</th><th>Daily Dose (Total)</th><th>Per Injection</th><th>Units / Injection</th><th>Volume / Injection</th></tr></thead>
+            <tbody>
+              <tr><td>Weeks 1–2</td><td class="highlight">500 mcg</td><td>250 mcg (×2)</td><td>15 units</td><td>0.15 mL</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">750 mcg</td><td>375 mcg (×2)</td><td>22.5 units</td><td>0.225 mL</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">1,000 mcg</td><td>500 mcg (×2)</td><td>30 units</td><td>0.30 mL</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="dosage-note danger">⚠️ <strong style="color:var(--accent3)">Research Only:</strong> SLU-PP-332 has <strong>not</strong> been tested in human subjects. All evidence is from murine (animal) models. This is for educational reference only — not for human consumption. Targets ERRα/δ/γ receptors to mimic endurance exercise at the cellular level.</div>
       </div>
 
-      <div class="source-note">Educational reference only. Not medical advice. Consult a qualified healthcare professional before use.</div>
+      <div class="source-note">Source: PeptideDosages.com — Educational reference only. Not medical advice. Research peptides not approved by the FDA (except bremelanotide/Vyleesi for HSDD). Consult a qualified healthcare professional before use.</div>
+
     </div>
   </div>
 
-  <!-- TAB 5 — CYCLE GUIDE -->
-  <div id="tab-cycles" class="tab-content">
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB 5 — CYCLE GUIDE
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-cycles" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-cycles" hidden>
     <div class="card">
       <div class="card-title">⏱️ Typical Peptide Cycle Lengths</div>
       <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">
         How long to run each peptide for best results. Tap a category to filter, or use
         <strong style="color:var(--accent)">→ Calculator</strong> to pre-fill the main calc.
       </p>
+
+      <!-- Category filter pills -->
       <div class="cycle-filter-row" id="cycle-filters">
         <button class="cycle-filter-btn active" style="background:#6c63ff" data-cat="all" onclick="filterCycles('all',this)">All</button>
-        <button class="cycle-filter-btn" data-cat="repair" onclick="filterCycles('repair',this)">🛡️ Repair &amp; Recovery</button>
-        <button class="cycle-filter-btn" data-cat="gh" onclick="filterCycles('gh',this)">💪 Growth Hormone</button>
-        <button class="cycle-filter-btn" data-cat="fatloss" onclick="filterCycles('fatloss',this)">🔥 Fat Loss</button>
+        <button class="cycle-filter-btn" data-cat="repair"   onclick="filterCycles('repair',this)">🛡️ Repair &amp; Recovery</button>
+        <button class="cycle-filter-btn" data-cat="gh"       onclick="filterCycles('gh',this)">💪 Growth Hormone</button>
+        <button class="cycle-filter-btn" data-cat="fatloss"  onclick="filterCycles('fatloss',this)">🔥 Fat Loss</button>
         <button class="cycle-filter-btn" data-cat="longevity" onclick="filterCycles('longevity',this)">🧬 Longevity</button>
         <button class="cycle-filter-btn" data-cat="asneeded" onclick="filterCycles('asneeded',this)">✨ As Needed</button>
-        <button class="cycle-filter-btn" data-cat="blend" onclick="filterCycles('blend',this)">🧪 Blends</button>
+        <button class="cycle-filter-btn" data-cat="blend"    onclick="filterCycles('blend',this)">🧪 Blends</button>
       </div>
+
       <div class="cycle-grid" id="cycle-grid">
 
-        <!-- REPAIR & RECOVERY -->
+        <!-- ── REPAIR & RECOVERY ──────────────────────────── -->
         <div class="cycle-card" data-cat="repair">
           <div class="cycle-card-accent" style="background:#4ecdc4"></div>
           <div class="cycle-card-header">
@@ -493,9 +1820,12 @@
           </div>
           <div class="cycle-dose">250–500 mcg/day · SubQ or IM</div>
           <span class="cycle-badge" style="background:rgba(78,205,196,0.15);color:#4ecdc4">Repair &amp; Recovery</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#4ecdc4">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#4ecdc4">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#4ecdc4,#43e97b)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="repair">
@@ -506,9 +1836,12 @@
           </div>
           <div class="cycle-dose">2–5 mg/week · SubQ</div>
           <span class="cycle-badge" style="background:rgba(78,205,196,0.15);color:#4ecdc4">Repair &amp; Recovery</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#4ecdc4">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#4ecdc4">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#4ecdc4,#43e97b)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="repair">
@@ -519,12 +1852,15 @@
           </div>
           <div class="cycle-dose">1–2 mg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(78,205,196,0.15);color:#4ecdc4">Repair &amp; Recovery</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#4ecdc4">8–16 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#4ecdc4">8–16 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:67%;background:linear-gradient(90deg,#4ecdc4,#43e97b)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,50,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,50,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
-        <!-- GROWTH HORMONE -->
+        <!-- ── GROWTH HORMONE ─────────────────────────────── -->
         <div class="cycle-card" data-cat="gh">
           <div class="cycle-card-accent" style="background:#6c63ff"></div>
           <div class="cycle-card-header">
@@ -533,9 +1869,12 @@
           </div>
           <div class="cycle-dose">100–300 mcg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">10–30 days</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">10–30 days</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:18%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
@@ -546,9 +1885,12 @@
           </div>
           <div class="cycle-dose">20–50 mcg/day · SubQ / IM</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">4–6 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">4–6 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:25%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.05,1,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.05,1,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
@@ -559,9 +1901,12 @@
           </div>
           <div class="cycle-dose">100–300 mcg/day (each) · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:67%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
@@ -572,22 +1917,28 @@
           </div>
           <div class="cycle-dose">100–300 mcg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:67%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
           <div class="cycle-card-accent" style="background:#6c63ff"></div>
           <div class="cycle-card-header">
-            <div class="cycle-icon">🧠</div>
+            <div class="cycle-icon">🫧</div>
             <div><div class="cycle-name">Ipamorelin</div><div class="cycle-purpose">Growth hormone release</div></div>
           </div>
           <div class="cycle-dose">100–300 mcg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">8–16 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:67%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,10,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
@@ -598,25 +1949,31 @@
           </div>
           <div class="cycle-dose">100–200 mcg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="gh">
           <div class="cycle-card-accent" style="background:#6c63ff"></div>
           <div class="cycle-card-header">
-            <div class="cycle-icon">🧪</div>
+            <div class="cycle-icon">🧠</div>
             <div><div class="cycle-name">Tesamorelin</div><div class="cycle-purpose">Growth hormone &amp; fat loss</div></div>
           </div>
           <div class="cycle-dose">1–2 mg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(108,99,255,0.15);color:#6c63ff">Growth Hormone</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#6c63ff">12–24+ weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#6c63ff">12–24+ weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:100%;background:linear-gradient(90deg,#6c63ff,#a78bfa)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
-        <!-- FAT LOSS & METABOLIC -->
+        <!-- ── FAT LOSS & METABOLIC ────────────────────────── -->
         <div class="cycle-card" data-cat="fatloss">
           <div class="cycle-card-accent" style="background:#f7971e"></div>
           <div class="cycle-card-header">
@@ -625,9 +1982,12 @@
           </div>
           <div class="cycle-dose">1–8 mg/week (escalating) · SubQ</div>
           <span class="cycle-badge" style="background:rgba(247,151,30,0.15);color:#f7971e">Fat Loss</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:100%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2,10,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2,10,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="fatloss">
@@ -638,9 +1998,12 @@
           </div>
           <div class="cycle-dose">2.5–10 mg/week · SubQ</div>
           <span class="cycle-badge" style="background:rgba(247,151,30,0.15);color:#f7971e">Fat Loss</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:100%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2.5,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(2.5,10,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="fatloss">
@@ -651,9 +2014,12 @@
           </div>
           <div class="cycle-dose">0.3–2.4 mg/week · SubQ</div>
           <span class="cycle-badge" style="background:rgba(247,151,30,0.15);color:#f7971e">Fat Loss</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#f7971e">12–24+ weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:100%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.5,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.5,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="fatloss">
@@ -664,7 +2030,10 @@
           </div>
           <div class="cycle-dose">250–500 mcg/day · SubQ (fasted)</div>
           <span class="cycle-badge" style="background:rgba(247,151,30,0.15);color:#f7971e">Fat Loss</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#f7971e">8–12 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#f7971e">8–12 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:50%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
           <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.3,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
@@ -675,14 +2044,17 @@
             <div class="cycle-icon">🔥</div>
             <div><div class="cycle-name">MOTS-C</div><div class="cycle-purpose">Metabolic &amp; mitochondrial support</div></div>
           </div>
-          <div class="cycle-dose">200–1,000 mcg/day · SubQ</div>
+          <div class="cycle-dose">5–10 mg, 2–3×/week · SubQ or IV</div>
           <span class="cycle-badge" style="background:rgba(247,151,30,0.15);color:#f7971e">Fat Loss</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#f7971e">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#f7971e">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#f7971e,#ffd200)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.2,20,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(5,20,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
-        <!-- LONGEVITY -->
+        <!-- ── LONGEVITY ───────────────────────────────────── -->
         <div class="cycle-card" data-cat="longevity">
           <div class="cycle-card-accent" style="background:#43e97b"></div>
           <div class="cycle-card-header">
@@ -691,9 +2063,12 @@
           </div>
           <div class="cycle-dose">250–500 mg, 1–3×/week · IV / SubQ</div>
           <span class="cycle-badge" style="background:rgba(67,233,123,0.12);color:#43e97b">Longevity</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#43e97b">4–12 weeks (ongoing)</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#43e97b">4–12 weeks (ongoing)</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:50%;background:linear-gradient(90deg,#43e97b,#4ecdc4)"></div></div>
-          <div class="cycle-footer"><span style="font-size:0.72rem;color:var(--text2);align-self:center">IV / SubQ protocol</span></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(250,500,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="longevity">
@@ -704,9 +2079,12 @@
           </div>
           <div class="cycle-dose">5–10 mg/day · SubQ or IV</div>
           <span class="cycle-badge" style="background:rgba(67,233,123,0.12);color:#43e97b">Longevity</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#43e97b">10–20 days · 1–2×/year</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#43e97b">10–20 days · 1–2×/year</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:12%;background:linear-gradient(90deg,#43e97b,#4ecdc4)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(5,50,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(5,50,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="longevity">
@@ -717,12 +2095,15 @@
           </div>
           <div class="cycle-dose">50–150 mg/day · Oral</div>
           <span class="cycle-badge" style="background:rgba(67,233,123,0.12);color:#43e97b">Longevity</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#43e97b">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#43e97b">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#43e97b,#4ecdc4)"></div></div>
           <div class="cycle-footer"><span style="font-size:0.72rem;color:var(--text2);align-self:center">Oral — no injection needed</span></div>
         </div>
 
-        <!-- AS NEEDED -->
+        <!-- ── AS NEEDED / SPECIAL ────────────────────────── -->
         <div class="cycle-card" data-cat="asneeded">
           <div class="cycle-card-accent" style="background:#ff6b6b"></div>
           <div class="cycle-card-header">
@@ -731,9 +2112,12 @@
           </div>
           <div class="cycle-dose">100–300 mcg · Before sleep · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b">As Needed</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ff6b6b">2–4 weeks (blocks)</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ff6b6b">2–4 weeks (blocks)</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:17%;background:linear-gradient(90deg,#ff6b6b,#f7971e)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.1,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="asneeded">
@@ -744,9 +2128,12 @@
           </div>
           <div class="cycle-dose">100–500 mcg · 2–3×/week · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b">As Needed</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ff6b6b">4–8 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ff6b6b">4–8 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:33%;background:linear-gradient(90deg,#ff6b6b,#f7971e)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,5,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,5,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="asneeded">
@@ -757,9 +2144,12 @@
           </div>
           <div class="cycle-dose">1–2 mg · 45–60 min before · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b">As Needed</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ff6b6b">As needed (no cycle)</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ff6b6b">As needed (no cycle)</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:5%;background:linear-gradient(90deg,#ff6b6b,#f7971e)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,10,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(1,10,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="asneeded">
@@ -770,9 +2160,12 @@
           </div>
           <div class="cycle-dose">500–1,000 mcg/day (loading) · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b">As Needed</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ff6b6b">2–4 wk loading → maintenance</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ff6b6b">2–4 wk loading → maintenance</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:17%;background:linear-gradient(90deg,#ff6b6b,#f7971e)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.5,10,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.5,10,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
         <div class="cycle-card" data-cat="asneeded">
@@ -783,12 +2176,15 @@
           </div>
           <div class="cycle-dose">250–1,000 mcg/day · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b">As Needed</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ff6b6b">1–4 wk loading → maintenance</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ff6b6b">1–4 wk loading → maintenance</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:17%;background:linear-gradient(90deg,#ff6b6b,#f7971e)"></div></div>
-          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,10,3);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
+          <div class="cycle-footer"><button class="cycle-use-btn" onclick="prefillCalc(0.25,10,2);switchTab('calc',document.querySelector('.tab-btn'))">→ Calculator</button></div>
         </div>
 
-        <!-- BLENDS -->
+        <!-- ── BLENDS ──────────────────────────────────────── -->
         <div class="cycle-card" data-cat="blend">
           <div class="cycle-card-accent" style="background:#ffd200"></div>
           <div class="cycle-card-header">
@@ -797,7 +2193,10 @@
           </div>
           <div class="cycle-dose">1–2 mg/day total blend · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,210,0,0.12);color:#ffd200">Blend</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ffd200">6–12 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ffd200">6–12 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:50%;background:linear-gradient(90deg,#ffd200,#f7971e)"></div></div>
           <div class="cycle-footer"><button class="cycle-use-btn" onclick="switchTab('calc',document.querySelector('.tab-btn'));setTimeout(()=>switchCalcMode('blend',document.querySelectorAll('.mode-btn')[1]),100)">→ Blend Calc</button></div>
         </div>
@@ -810,15 +2209,21 @@
           </div>
           <div class="cycle-dose">1–5 mg/day total blend · SubQ</div>
           <span class="cycle-badge" style="background:rgba(255,210,0,0.12);color:#ffd200">Blend</span>
-          <div class="cycle-duration-label"><span class="cycle-duration-text">Cycle length</span><span class="cycle-duration-val" style="color:#ffd200">8–16 weeks</span></div>
+          <div class="cycle-duration-label">
+            <span class="cycle-duration-text">Cycle length</span>
+            <span class="cycle-duration-val" style="color:#ffd200">8–16 weeks</span>
+          </div>
           <div class="cycle-bar-track"><div class="cycle-bar-fill" style="width:67%;background:linear-gradient(90deg,#ffd200,#f7971e)"></div></div>
           <div class="cycle-footer"><button class="cycle-use-btn" onclick="switchTab('calc',document.querySelector('.tab-btn'));setTimeout(()=>switchCalcMode('blend',document.querySelectorAll('.mode-btn')[1]),100)">→ Blend Calc</button></div>
         </div>
 
       </div><!-- /cycle-grid -->
+
       <div class="source-note" style="margin-top:20px;">Source: PeptideDosages.com &amp; published research — Educational reference only. Individual cycles vary by goal, dosage, and response. Not medical advice.</div>
     </div>
   </div>
+
+  </main>
 
   <footer>
     <strong>⚠️ Disclaimer:</strong> This calculator is for informational and educational purposes only.<br />
@@ -826,6 +2231,756 @@
   </footer>
 </div>
 
-<script src="/app.js"></script>
+<script>
+// ─── PILL DEFINITIONS ──────────────────────────────────────────────────
+const DOSE_OPTS     = [0.1, 0.25, 0.5, 1, 2, 2.5, 5, 7.5, 10, 12.5, 15];  // mg
+const STRENGTH_OPTS = [1, 5, 10, 15, 20, 50, 70];                           // mg (vial size)
+const WATER_OPTS    = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 6.0, 10.0];     // mL
+
+// State
+const state = { dose: null, strength: null, water: null };
+
+// ─── BUILD PILLS ───────────────────────────────────────────────────────
+function buildPills(containerId, opts, key, unit) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = opts.map(v =>
+    `<button class="pill" onclick="selectPill('${key}', ${v}, this)">${v}${unit}</button>`
+  ).join('');
+}
+
+buildPills('dose-pills',     DOSE_OPTS,     'dose',     'mg');
+buildPills('strength-pills', STRENGTH_OPTS, 'strength', 'mg');
+buildPills('water-pills',    WATER_OPTS,    'water',    'mL');
+
+function selectPill(key, val, btn) {
+  // Clear custom input
+  const customMap = { dose: 'dose-custom', strength: 'strength-custom', water: 'water-custom' };
+  document.getElementById(customMap[key]).value = '';
+  // Deactivate siblings
+  btn.closest('.pill-row').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  state[key] = val;
+  calculate();
+}
+
+// ─── REVERSE CALCULATOR ────────────────────────────────────────────────
+function calcReverse() {
+  const units    = parseFloat(document.getElementById('rev-units').value);
+  const strength = parseFloat(document.getElementById('rev-strength').value);
+  const water    = parseFloat(document.getElementById('rev-water').value);
+  const resEl    = document.getElementById('rev-results');
+  if (isNaN(units)||isNaN(strength)||isNaN(water)||units<=0||strength<=0||water<=0) {
+    resEl.style.display = 'none'; return;
+  }
+  const concMgMl = strength / water;
+  const volMl    = units * 0.01;
+  const doseMg   = volMl * concMgMl;
+  const doseMcg  = doseMg * 1000;
+
+  document.getElementById('rev-display-units').textContent  = fmt(units);
+  document.getElementById('rev-res-mg').textContent         = fmt(doseMg) + ' mg';
+  document.getElementById('rev-res-mcg-sub').textContent    = fmt(doseMcg) + ' mcg';
+  document.getElementById('rev-res-mg-stat').textContent    = fmt(doseMg);
+  document.getElementById('rev-res-mcg').textContent        = fmt(doseMcg);
+  document.getElementById('rev-res-ml').textContent         = fmt(volMl);
+  document.getElementById('rev-res-conc').textContent       = fmt(concMgMl);
+
+  resEl.style.display = 'block';
+  drawSyringe(units, 'rev-');
+}
+
+function selectCustom(key, rawVal) {
+  const val = parseFloat(rawVal);
+  // Deactivate all pills in that group
+  const pillRowMap = { dose: 'dose-pills', strength: 'strength-pills', water: 'water-pills' };
+  document.getElementById(pillRowMap[key]).querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  state[key] = isNaN(val) || val <= 0 ? null : val;
+  calculate();
+}
+
+// ─── CORE CALCULATION ──────────────────────────────────────────────────
+function calculate() {
+  const { dose, strength, water } = state;
+  const resEl = document.getElementById('main-results');
+
+  if (!dose || !strength || !water) { resEl.style.display = 'none'; return; }
+
+  const concMgMl   = strength / water;           // mg/mL
+  const volMl      = dose / concMgMl;            // mL needed for one dose
+  const units      = volMl * 100;                // U-100: 1 unit = 0.01 mL
+  const dosesTotal = Math.floor(strength / dose);
+
+  resEl.style.display = 'block';
+
+  document.getElementById('res-units').textContent = fmt(units) + ' units';
+  document.getElementById('res-units-sub').textContent =
+    `on a U-100 insulin syringe  (= ${fmt(volMl)} mL)`;
+  document.getElementById('res-dose').textContent  = fmt(dose);
+  document.getElementById('res-conc').textContent  = fmt(concMgMl);
+  document.getElementById('res-vol').textContent   = fmt(volMl);
+  document.getElementById('res-doses').textContent = dosesTotal;
+  document.getElementById('res-summary').innerHTML =
+    `<strong>How to prepare:</strong> Draw ${fmt(water)} mL of BAC water into a syringe and slowly inject it into your ${strength} mg vial. ` +
+    `Your solution will be ${fmt(concMgMl)} mg/mL. For a ${fmt(dose)} mg dose, draw to the <strong>${fmt(units)}-unit mark</strong> on your U-100 syringe. ` +
+    `Your vial contains approximately <strong>${dosesTotal} doses</strong>.`;
+
+  drawSyringe(units);
+}
+
+// ─── SYRINGE GRAPHIC ──────────────────────────────────────────────────
+function drawSyringe(targetUnits, prefix) {
+  prefix = prefix || '';
+  const BARREL_X = 60, BARREL_W = 460;
+  const maxUnits = 100;
+  const clampedUnits = Math.min(targetUnits, maxUnits);
+  const fillW = (clampedUnits / maxUnits) * BARREL_W;
+  const arrowColor = prefix === 'rev-' ? '#38E0C7' : prefix === 'blend-' ? '#FF8A5C' : '#7C6CFF';
+
+  document.getElementById(prefix + 'syringe-fill').setAttribute('width', Math.max(0, fillW));
+
+  const ticksEl  = document.getElementById(prefix + 'syringe-ticks');
+  const labelsEl = document.getElementById(prefix + 'syringe-labels');
+  ticksEl.innerHTML = '';
+  labelsEl.innerHTML = '';
+
+  for (let u = 0; u <= 100; u += 10) {
+    const x = BARREL_X + (u / 100) * BARREL_W;
+    const tickH = u % 50 === 0 ? 22 : 14;
+    ticksEl.innerHTML += `<line x1="${x}" y1="${72 - tickH}" x2="${x}" y2="72"/>`;
+    if (u > 0 && u <= 100) {
+      labelsEl.innerHTML += `<text x="${x}" y="84">${u}</text>`;
+    }
+  }
+
+  const arrowX = BARREL_X + (clampedUnits / maxUnits) * BARREL_W;
+  ticksEl.innerHTML += `
+    <line x1="${arrowX}" y1="14" x2="${arrowX}" y2="28" stroke="${arrowColor}" stroke-width="2.5"/>
+    <polygon points="${arrowX-5},14 ${arrowX+5},14 ${arrowX},22" fill="${arrowColor}"/>
+  `;
+
+  const overMax = targetUnits > maxUnits;
+  document.getElementById(prefix + 'syringe-caption').textContent = overMax
+    ? `⚠️ ${fmt(targetUnits)} units exceeds a standard U-100 syringe — you'll need to split into multiple injections.`
+    : `Draw to the ${fmt(clampedUnits)}-unit mark (shown by the ▼ arrow above)`;
+}
+
+// ─── PEPTIDE PRESETS ──────────────────────────────────────────────────
+const PRESETS = [
+  // ── Primary / Most Used ──
+  { name:"Retatrutide",   full:"Retatrutide (RETA) — Triple Agonist",       type:"GLP-1/GIP/Glucagon",         vial:10, water:3,  dose:0.5,  doseRange:"0.5–12 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
+  { name:"GLOW Stack",    full:"BPC-157 + TB-500 + GHK-Cu Blend",           type:"Healing/Skin/Recovery Blend",vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL BAC water (not the standard 3 mL) — the higher dilution significantly reduces injection sting. This is the only peptide in the protocol that uses 10 mL." },
+  { name:"Wolverine Stack",full:"BPC-157 + TB-500 Blend",                   type:"Healing/Recovery Blend",     vial:20, water:3,  dose:1.0,  doseRange:"1 mg",           freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 3 mL BAC water gives ~6.67 mg/mL — 1 mg dose = 15 units on a U-100 syringe." },
+  { name:"Tirzepatide",   full:"Tirzepatide (GIP/GLP-1)",                   type:"GLP-1/GIP / Metabolic",      vial:5,  water:3,  dose:2.5,  doseRange:"2.5–15 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
+  { name:"PT-141",        full:"PT-141 (Bremelanotide)",                    type:"Sexual Health",               vial:10, water:3,  dose:0.5,  doseRange:"0.5–2 mg",       freq:"As needed",          route:"Subcutaneous",          storage:"Refrigerate after reconstitution", notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
+  { name:"Melanotan II",  full:"Melanotan II",                               type:"Tanning/Melanocortin",        vial:10, water:3,  dose:0.25, doseRange:"0.25–1 mg",      freq:"Daily (loading)",    route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
+  { name:"GHK-Cu",        full:"GHK-Cu (Copper Peptide)",                   type:"Skin/Anti-aging/Collagen",    vial:50, water:3,  dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous or topical",storage:"Refrigerate; use within 4 weeks",  notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
+  { name:"MOTS-C",        full:"MOTS-C (Mitochondrial-derived Peptide)",    type:"Metabolic/Longevity",         vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",  freq:"Once daily",         route:"Subcutaneous",          storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
+  { name:"AOD-9604",      full:"AOD-9604 (Tyr-hGH Fragment 177–191)",       type:"Fat Metabolism/Lipolysis",    vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",    freq:"Once daily (fasted)", route:"Subcutaneous",          storage:"Refrigerate; use within 30–45 days",  notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
+  { name:"SLU-PP-332",    full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",        type:"Exercise Mimetic/Metabolic",  vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",  freq:"1–2x daily",         route:"Subcutaneous",          storage:"Refrigerate; use within 30 days",  notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
+  // ── Others ──
+  { name:"BPC-157",       full:"Body Protection Compound 157",              type:"Healing/Recovery",            vial:5,  water:3,  dose:0.25, doseRange:"0.25–0.5 mg",   freq:"1–2x daily",         route:"Subcutaneous or IM",    storage:"Refrigerate; use within 4 weeks",  notes:"Often used for gut health, tendon and ligament repair." },
+  { name:"TB-500",        full:"Thymosin Beta-4",                           type:"Recovery/Anti-inflammatory",  vial:5,  water:3,  dose:2.0,  doseRange:"2–2.5 mg",       freq:"2x weekly (loading)",route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
+  { name:"Ipamorelin",    full:"Ipamorelin",                                type:"GH Secretagogue",             vial:10, water:3,  dose:0.2,  doseRange:"0.2–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 200 mcg dose = 6 units, 300 mcg dose = 9 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
+  { name:"CJC-1295",     full:"CJC-1295 No DAC",                           type:"GH Secretagogue / GHRH",      vial:5,  water:3,  dose:0.1,  doseRange:"0.1–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"GHRH analogue (No DAC = short-acting). 5 mg vial + 3 mL BAC water = 1.67 mg/mL (1,667 mcg/mL). 100 mcg dose = 6 units, 200 mcg = 12 units, 300 mcg = 18 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
+  { name:"Sermorelin",    full:"Sermorelin",                                type:"GHRH Analogue",               vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",    freq:"Once daily (bedtime)",route:"Subcutaneous",         storage:"Refrigerate; use within 30 days",  notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
+  { name:"Tesamorelin",   full:"Tesamorelin",                               type:"GHRH / Visceral Fat",         vial:2,  water:3,  dose:2.0,  doseRange:"2 mg/day",       freq:"Once daily",         route:"Subcutaneous (abdomen)",storage:"Refrigerate; use within 3 weeks",  notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
+];
+
+function renderPeptidePills() {
+  const el = document.getElementById('peptide-pills-list');
+  el.innerHTML = PRESETS.map((p, i) =>
+    `<button class="peptide-pill" onclick="showPeptide(${i})" id="ppill-${i}">${p.name}</button>`
+  ).join('');
+}
+
+function showPeptide(idx) {
+  document.querySelectorAll('.peptide-pill').forEach((el,i) => el.classList.toggle('active', i===idx));
+  const p = PRESETS[idx];
+  const concMgMl = (p.vial / p.water).toFixed(2);
+  const units = fmt((p.dose / p.vial * p.water) * 100);
+  const el = document.getElementById('peptide-detail');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <hr class="divider"/>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:1.1rem;font-weight:700;">${p.name} <span class="tag tag-blue" style="margin-left:6px;">${p.type}</span></div>
+      <div style="font-size:0.82rem;color:var(--text2);margin-top:3px;">${p.full}</div>
+    </div>
+    <div class="result-stats" style="grid-template-columns:repeat(2,1fr);margin-bottom:14px;">
+      <div class="stat-box"><div class="stat-label">Typical Vial Size</div><div class="stat-val" style="font-size:1rem;">${p.vial} mg</div></div>
+      <div class="stat-box"><div class="stat-label">BAC Water to Add</div><div class="stat-val" style="font-size:1rem;">${p.water} mL</div></div>
+      <div class="stat-box"><div class="stat-label">Concentration</div><div class="stat-val" style="font-size:1rem;">${concMgMl} mg/mL</div></div>
+      <div class="stat-box"><div class="stat-label">Typical Dose</div><div class="stat-val" style="font-size:1rem;">${p.doseRange}</div></div>
+      <div class="stat-box"><div class="stat-label">Frequency</div><div class="stat-val" style="font-size:0.85rem;line-height:1.2;padding-top:4px;">${p.freq}</div></div>
+      <div class="stat-box"><div class="stat-label">Route</div><div class="stat-val" style="font-size:0.85rem;line-height:1.2;padding-top:4px;">${p.route}</div></div>
+    </div>
+    <div class="info-banner" style="margin-bottom:12px;">🗓 <strong>Storage:</strong> ${p.storage}</div>
+    <div class="info-banner" style="margin-bottom:14px;">📝 ${p.notes}</div>
+    <button class="btn btn-primary" onclick="loadPresetInCalc(${idx})">💉 Load into Calculator</button>
+  `;
+}
+
+function loadPresetInCalc(idx) {
+  const p = PRESETS[idx];
+  // Switch tab
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-calc').classList.add('active');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  // Clear all pills
+  ['dose-pills','strength-pills','water-pills'].forEach(id =>
+    document.getElementById(id).querySelectorAll('.pill').forEach(pl => pl.classList.remove('active'))
+  );
+  ['dose-custom','strength-custom','water-custom'].forEach(id => document.getElementById(id).value = '');
+  // Set state
+  state.dose = p.dose; state.strength = p.vial; state.water = p.water;
+  // Highlight matching pills or fill custom
+  setPillOrCustom('dose-pills',     'dose-custom',     DOSE_OPTS,     p.dose,    'dose');
+  setPillOrCustom('strength-pills', 'strength-custom', STRENGTH_OPTS, p.vial,    'strength');
+  setPillOrCustom('water-pills',    'water-custom',    WATER_OPTS,    p.water,   'water');
+  calculate();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function setPillOrCustom(pillsId, customId, opts, val, key) {
+  const match = opts.find(o => o === val);
+  if (match !== undefined) {
+    const pills = document.getElementById(pillsId).querySelectorAll('.pill');
+    const idx   = opts.indexOf(match);
+    if (pills[idx]) pills[idx].classList.add('active');
+  } else {
+    document.getElementById(customId).value = val;
+  }
+}
+
+// ─── VIAL TRACKER ─────────────────────────────────────────────────────
+let vials = [];
+try {
+  vials = JSON.parse(localStorage.getItem('peptide-vials-v2') || '[]').map(v => {
+    // Migrate old dosesUsed → mgUsed
+    if (v.mgUsed === undefined) v.mgUsed = (v.dosesUsed || 0) * v.doseMg;
+    return v;
+  });
+} catch(e){}
+
+function saveVials() { localStorage.setItem('peptide-vials-v2', JSON.stringify(vials)); }
+
+function addVial() {
+  const name   = document.getElementById('v-name').value.trim();
+  const vialMg = parseFloat(document.getElementById('v-vial-mg').value);
+  const waterMl= parseFloat(document.getElementById('v-water-ml').value);
+  const doseMg = parseFloat(document.getElementById('v-dose-mg').value);
+  const notes  = document.getElementById('v-notes').value.trim();
+  if (!name || isNaN(vialMg)||isNaN(waterMl)||isNaN(doseMg)||vialMg<=0||waterMl<=0||doseMg<=0) {
+    showToast('Fill in name, vial size, BAC water and dose per injection.', 'warning'); return;
+  }
+  const concMgMl = vialMg / waterMl;
+  vials.push({ id: Date.now(), name, vialMg, waterMl, doseMg, notes, concMgMl, mgUsed: 0, addedAt: new Date().toLocaleDateString() });
+  saveVials(); renderVials();
+  ['v-name','v-vial-mg','v-water-ml','v-dose-mg','v-notes'].forEach(id => document.getElementById(id).value='');
+  showToast(name + ' added to tracker', 'success');
+}
+
+function useDose(id) {
+  const v = vials.find(x=>x.id===id);
+  if (!v) return;
+  const mgRemaining = v.vialMg - v.mgUsed;
+  if (mgRemaining < v.doseMg) { showToast('Not enough left in this vial for a full dose.', 'warning'); return; }
+  v.mgUsed = parseFloat((v.mgUsed + v.doseMg).toFixed(6));
+  saveVials(); renderVials();
+  showToast('Dose logged for ' + v.name, 'success', 1800);
+}
+function resetVial(id) {
+  const v=vials.find(x=>x.id===id);
+  if(v){v.mgUsed=0;saveVials();renderVials();showToast(v.name + ' progress reset', 'info', 1800);}
+}
+function removeVial(id) {
+  const v=vials.find(x=>x.id===id);
+  if(!v||!confirm('Remove ' + v.name + '?')) return;
+  vials=vials.filter(x=>x.id!==id);
+  saveVials(); renderVials();
+  showToast(v.name + ' removed', 'info', 1800);
+}
+
+function updateVialDose(id, rawVal) {
+  const v = vials.find(x=>x.id===id);
+  if (!v) return;
+  const newDose = parseFloat(rawVal);
+  if (isNaN(newDose) || newDose <= 0) return;
+  v.doseMg = newDose;
+  saveVials();
+  // Update paired units input without full re-render (avoids losing focus)
+  const unitsInput = document.getElementById('units-' + id);
+  if (unitsInput) unitsInput.value = fmt((newDose / v.concMgMl) * 100);
+  renderVials();
+}
+
+function updateVialUnits(id, rawVal) {
+  const v = vials.find(x=>x.id===id);
+  if (!v) return;
+  const newUnits = parseFloat(rawVal);
+  if (isNaN(newUnits) || newUnits <= 0) return;
+  v.doseMg = parseFloat(((newUnits * 0.01) * v.concMgMl).toFixed(6));
+  saveVials();
+  // Update paired dose input
+  const doseInput = document.getElementById('dose-' + id);
+  if (doseInput) doseInput.value = fmt(v.doseMg);
+  renderVials();
+}
+
+function renderVials() {
+  const el = document.getElementById('vial-list');
+  if (!vials.length) {
+    el.innerHTML='<div class="empty-state"><div class="big">💊</div><div>No vials tracked yet.</div></div>'; return;
+  }
+  el.innerHTML = vials.map(v => {
+    const mgRemaining  = Math.max(0, v.vialMg - v.mgUsed);
+    const currentUnits = fmt((v.doseMg / v.concMgMl) * 100);
+    const dosesRem     = Math.floor(mgRemaining / v.doseMg);
+    const dosesTotal   = Math.floor(v.vialMg / v.doseMg);
+    const pct          = (mgRemaining / v.vialMg) * 100;
+    const bar          = pct > 50 ? 'var(--success)' : pct > 20 ? 'var(--warning)' : 'var(--accent3)';
+    return `
+      <div class="vial-item">
+        <div class="vial-info">
+          <div class="vial-name">${v.name}</div>
+          <div class="vial-detail">${v.vialMg}mg vial · ${v.waterMl}mL water · ${fmt(v.concMgMl)}mg/mL · Draw <strong style="color:var(--accent2)">${currentUnits} units</strong> per dose</div>
+          ${v.notes ? `<div class="vial-detail" style="font-style:italic;">${v.notes}</div>` : ''}
+          <div class="vial-detail">Added: ${v.addedAt} · ${fmt(mgRemaining)} mg remaining</div>
+          <div class="vial-dose-edit">
+            <label class="vial-dose-label">Dose (mg):</label>
+            <input
+              type="number" id="dose-${v.id}" class="vial-dose-input"
+              value="${fmt(v.doseMg)}" min="0.001" step="0.01"
+              onchange="updateVialDose(${v.id}, this.value)"
+            />
+            <label class="vial-dose-label" style="margin-left:10px;">Units:</label>
+            <input
+              type="number" id="units-${v.id}" class="vial-dose-input"
+              value="${currentUnits}" min="0.1" step="0.5"
+              onchange="updateVialUnits(${v.id}, this.value)"
+            />
+          </div>
+        </div>
+        <div class="vial-progress-wrap">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${bar}"></div></div>
+          <div class="progress-label">${dosesRem} / ${dosesTotal} doses remaining</div>
+        </div>
+        <div class="vial-actions">
+          <button class="btn-sm" onclick="useDose(${v.id})">✓ Use Dose</button>
+          <button class="btn-sm" onclick="resetVial(${v.id})">↺ Reset</button>
+          <button class="btn-sm danger" onclick="removeVial(${v.id})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── TAB SWITCHING ─────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  if (!btn) btn = document.getElementById('tabbtn-' + name);
+  if (!btn) return;
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.remove('active');
+    el.hidden = true;
+  });
+  document.querySelectorAll('.tab-btn').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-selected', 'false');
+    el.setAttribute('tabindex', '-1');
+  });
+  const panel = document.getElementById('tab-' + name);
+  if (panel) { panel.classList.add('active'); panel.hidden = false; }
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  btn.setAttribute('tabindex', '0');
+  moveTabIndicator(btn);
+}
+
+function moveTabIndicator(btn) {
+  const ind = document.getElementById('tab-indicator');
+  if (!ind || !btn) return;
+  const tablist = btn.parentElement;
+  const btnRect = btn.getBoundingClientRect();
+  const listRect = tablist.getBoundingClientRect();
+  const left = btnRect.left - listRect.left + tablist.scrollLeft;
+  ind.style.transform = `translateX(${left}px)`;
+  ind.style.width = `${btnRect.width}px`;
+}
+
+// Keyboard navigation for tabs (arrow keys per ARIA tab pattern)
+function setupTabKeyboard() {
+  const tabs = Array.from(document.querySelectorAll('.tabs .tab-btn'));
+  tabs.forEach((t, i) => {
+    t.addEventListener('keydown', (e) => {
+      let target = null;
+      if (e.key === 'ArrowRight') target = tabs[(i + 1) % tabs.length];
+      else if (e.key === 'ArrowLeft') target = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === 'Home') target = tabs[0];
+      else if (e.key === 'End') target = tabs[tabs.length - 1];
+      if (target) {
+        e.preventDefault();
+        target.focus();
+        switchTab(target.dataset.tab, target);
+      }
+    });
+  });
+}
+
+// ─── TOAST ─────────────────────────────────────────────────────────────
+const TOAST_ICONS = {
+  info:    'i-info',
+  success: 'i-check',
+  warning: 'i-warn',
+  danger:  'i-warn',
+};
+function showToast(message, kind = 'info', ms = 2600) {
+  const stack = document.getElementById('toast-stack');
+  if (!stack) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind === 'danger' ? ' danger' : kind === 'warning' ? ' warning' : '');
+  el.innerHTML =
+    `<svg aria-hidden="true"><use href="#${TOAST_ICONS[kind] || TOAST_ICONS.info}"/></svg>` +
+    `<span>${message}</span>`;
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('leaving');
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+  }, ms);
+}
+
+// ─── COPY RESULT ───────────────────────────────────────────────────────
+async function copyToClipboard(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast((label || 'Result') + ' copied — ' + text, 'success');
+  } catch (e) {
+    showToast('Copy failed. Long-press the value to copy manually.', 'warning');
+  }
+}
+
+// ─── INPUT VALIDATION ──────────────────────────────────────────────────
+function validateNumberInput(input) {
+  const val = input.value.trim();
+  if (val === '') { input.classList.remove('invalid'); clearFieldError(input); return true; }
+  const num = parseFloat(val);
+  const min = parseFloat(input.min);
+  if (isNaN(num) || (Number.isFinite(min) && num <= min - 0.0001)) {
+    input.classList.add('invalid');
+    setFieldError(input, 'Enter a number greater than ' + (Number.isFinite(min) ? min : 0));
+    return false;
+  }
+  input.classList.remove('invalid');
+  clearFieldError(input);
+  return true;
+}
+function setFieldError(input, msg) {
+  let err = input.parentElement.querySelector('.field-error');
+  if (!err) {
+    err = document.createElement('small');
+    err.className = 'field-error';
+    input.insertAdjacentElement('afterend', err);
+  }
+  err.textContent = msg;
+}
+function clearFieldError(input) {
+  const err = input.parentElement.querySelector('.field-error');
+  if (err) err.remove();
+}
+
+// ─── FORMAT HELPER ─────────────────────────────────────────────────────
+function fmt(n) {
+  if (isNaN(n) || n === null) return '—';
+  if (Number.isInteger(n)) return String(n);
+  return parseFloat(n.toPrecision(4)).toString();
+}
+
+// ─── CALC MODE TOGGLE ──────────────────────────────────────────────────
+function switchCalcMode(mode, btn) {
+  document.getElementById('calc-mode-single').style.display = mode === 'single' ? '' : 'none';
+  document.getElementById('calc-mode-blend').style.display  = mode === 'blend'  ? '' : 'none';
+  document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─── BLEND CALCULATOR ──────────────────────────────────────────────────
+const BLENDS = [
+  {
+    name: 'GLOW',
+    peptides: [
+      { name: 'GHK-Cu',  mg: 50 },
+      { name: 'BPC-157', mg: 10 },
+      { name: 'TB-500',  mg: 10 },
+    ],
+    water: 3.0,
+    dose: 2.33,
+  },
+  {
+    name: 'Wolverine Stack',
+    peptides: [
+      { name: 'BPC-157', mg: 10 },
+      { name: 'TB-500',  mg: 10 },
+    ],
+    water: 3.0,
+    dose: 1.0,
+  },
+];
+
+const blendState = { peptides: [], water: null, dose: null };
+
+function buildBlendPresetPills() {
+  const el = document.getElementById('blend-preset-pills');
+  const pills = [...BLENDS.map((b, i) =>
+    `<button class="blend-preset-pill" onclick="selectBlendPreset(${i})">${b.name}</button>`
+  ), `<button class="blend-preset-pill" onclick="selectBlendPreset(-1)">✦ Custom</button>`];
+  el.innerHTML = pills.join('');
+}
+
+function buildBlendWaterPills() {
+  const el = document.getElementById('blend-water-pills');
+  el.innerHTML = WATER_OPTS.map((v, i) =>
+    `<div class="pill" onclick="blendSetWater(${v}, ${i})">${v} mL</div>`
+  ).join('');
+}
+
+function selectBlendPreset(idx) {
+  document.querySelectorAll('#blend-preset-pills .blend-preset-pill')
+    .forEach((el, i) => el.classList.toggle('active', i === idx));
+
+  if (idx < 0) {
+    blendState.peptides = [{ name: '', mg: 0 }, { name: '', mg: 0 }];
+    blendState.water = null; blendState.dose = null;
+    document.getElementById('blend-water-pills').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('blend-water-custom').value = '';
+    document.getElementById('blend-dose-input').value = '';
+    document.getElementById('blend-results').style.display = 'none';
+  } else {
+    const preset = BLENDS[idx];
+    blendState.peptides = preset.peptides.map(p => ({ ...p }));
+    blendState.water = preset.water;
+    blendState.dose  = preset.dose;
+    // Set water pill
+    document.getElementById('blend-water-pills').querySelectorAll('.pill').forEach((el, i) => {
+      el.classList.toggle('active', WATER_OPTS[i] === preset.water);
+    });
+    document.getElementById('blend-water-custom').value = '';
+    document.getElementById('blend-dose-input').value = fmt(preset.dose);
+  }
+  renderBlendPeptideRows();
+  updateBlendTotal();
+  calcBlend();
+}
+
+function renderBlendPeptideRows() {
+  const el = document.getElementById('blend-peptide-rows');
+  if (!blendState.peptides.length) { el.innerHTML = ''; return; }
+  el.innerHTML = blendState.peptides.map((p, i) => `
+    <div class="blend-peptide-row">
+      <input class="bp-name" type="text" placeholder="Peptide name" value="${p.name}"
+        oninput="updateBlendPeptide(${i},'name',this.value)" />
+      <input class="bp-mg" type="number" placeholder="mg" min="0" step="0.1" value="${p.mg || ''}"
+        oninput="updateBlendPeptide(${i},'mg',parseFloat(this.value)||0)" />
+      <span class="bp-unit">mg</span>
+      <button class="bp-remove" onclick="removeBlendPeptide(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateBlendPeptide(idx, field, val) {
+  if (!blendState.peptides[idx]) return;
+  blendState.peptides[idx][field] = val;
+  updateBlendTotal();
+  calcBlend();
+}
+
+function addBlendPeptide() {
+  blendState.peptides.push({ name: '', mg: 0 });
+  // Clear preset active state — now custom
+  document.querySelectorAll('#blend-preset-pills .blend-preset-pill').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#blend-preset-pills .blend-preset-pill')
+    [BLENDS.length].classList.add('active');
+  renderBlendPeptideRows();
+  updateBlendTotal();
+}
+
+function removeBlendPeptide(idx) {
+  blendState.peptides.splice(idx, 1);
+  renderBlendPeptideRows();
+  updateBlendTotal();
+  calcBlend();
+}
+
+function updateBlendTotal() {
+  const total = blendState.peptides.reduce((s, p) => s + (p.mg || 0), 0);
+  document.getElementById('blend-total-bar').innerHTML =
+    `Total vial: <strong>${fmt(total)} mg</strong>` +
+    (blendState.water ? ` &nbsp;·&nbsp; Concentration: <strong>${fmt(total / blendState.water)} mg/mL</strong>` : '');
+}
+
+function blendSetWater(val, pillIdx) {
+  blendState.water = isNaN(val) || val <= 0 ? null : val;
+  if (pillIdx >= 0) {
+    document.getElementById('blend-water-pills').querySelectorAll('.pill')
+      .forEach((el, i) => el.classList.toggle('active', i === pillIdx));
+    document.getElementById('blend-water-custom').value = '';
+  } else {
+    document.getElementById('blend-water-pills').querySelectorAll('.pill')
+      .forEach(el => el.classList.remove('active'));
+  }
+  updateBlendTotal();
+  calcBlend();
+}
+
+function blendSetDose(val) {
+  blendState.dose = isNaN(val) || val <= 0 ? null : val;
+  calcBlend();
+}
+
+function calcBlend() {
+  const { peptides, water, dose } = blendState;
+  const resEl = document.getElementById('blend-results');
+  const validPeptides = peptides.filter(p => p.mg > 0 && p.name.trim());
+  if (!validPeptides.length || !water || !dose) { resEl.style.display = 'none'; return; }
+
+  const totalMg   = validPeptides.reduce((s, p) => s + p.mg, 0);
+  const totalConc = totalMg / water;
+  const volMl     = dose / totalConc;
+  const units     = volMl * 100;
+
+  document.getElementById('blend-res-units').textContent    = fmt(units) + ' units';
+  document.getElementById('blend-res-units-sub').textContent =
+    `on a U-100 insulin syringe  (= ${fmt(volMl)} mL)`;
+
+  // Per-peptide breakdown
+  const tbody = document.getElementById('blend-breakdown-body');
+  tbody.innerHTML = validPeptides.map(p => {
+    const concMgMl = p.mg / water;
+    const doseMg   = dose * (p.mg / totalMg);
+    const doseMcg  = doseMg * 1000;
+    return `<tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${fmt(p.mg)} mg</td>
+      <td>${fmt(concMgMl)} mg/mL</td>
+      <td>${fmt(doseMg)} mg</td>
+      <td>${fmt(doseMcg)} mcg</td>
+    </tr>`;
+  }).join('') + `<tr>
+    <td>Total</td>
+    <td>${fmt(totalMg)} mg</td>
+    <td>${fmt(totalConc)} mg/mL</td>
+    <td>${fmt(dose)} mg</td>
+    <td>${fmt(dose * 1000)} mcg</td>
+  </tr>`;
+
+  document.getElementById('blend-summary').innerHTML =
+    `<strong>How to prepare:</strong> Add ${fmt(water)} mL BAC water to your ${fmt(totalMg)} mg vial. ` +
+    `For a ${fmt(dose)} mg combined dose, draw to the <strong>${fmt(units)}-unit mark</strong> on your U-100 syringe.`;
+
+  resEl.style.display = 'block';
+  drawSyringe(units, 'blend-');
+}
+
+// ─── CYCLE GUIDE ───────────────────────────────────────────────────────
+function filterCycles(cat, btn) {
+  document.querySelectorAll('.cycle-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.color = '';
+  });
+  btn.classList.add('active');
+  const catColors = {
+    all:       '#7C6CFF',
+    repair:    '#38E0C7',
+    gh:        '#7C6CFF',
+    fatloss:   '#FF8A5C',
+    longevity: '#3DDC97',
+    asneeded:  '#FF5B72',
+    blend:     '#FFC857'
+  };
+  btn.style.background = catColors[cat] || '#7C6CFF';
+  btn.style.color = (cat === 'blend') ? '#1a1d27' : '#fff';
+  // Show/hide cards
+  document.querySelectorAll('#cycle-grid .cycle-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+function prefillCalc(dose, strength, water) {
+  // Switch to calc tab & single mode
+  const calcBtn = document.querySelector('.tab-btn');
+  switchTab('calc', calcBtn);
+  switchCalcMode('single', document.querySelector('.mode-btn'));
+  // Set state & highlight pills or fill custom inputs
+  state.dose = dose;
+  state.strength = strength;
+  state.water = water;
+  // Try to activate matching pills, else fill custom inputs
+  function activatePill(containerId, value) {
+    let matched = false;
+    document.querySelectorAll(`#${containerId} .pill`).forEach(btn => {
+      const v = parseFloat(btn.textContent);
+      if (Math.abs(v - value) < 0.001) { btn.click(); matched = true; }
+    });
+    if (!matched) {
+      const customMap = { 'dose-pills': 'dose-custom', 'strength-pills': 'strength-custom', 'water-pills': 'water-custom' };
+      const inp = document.getElementById(customMap[containerId]);
+      if (inp) { inp.value = value; inp.dispatchEvent(new Event('input')); }
+    }
+  }
+  setTimeout(() => {
+    activatePill('dose-pills', dose);
+    activatePill('strength-pills', strength);
+    activatePill('water-pills', water);
+  }, 50);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────
+renderPeptidePills();
+renderVials();
+buildBlendPresetPills();
+buildBlendWaterPills();
+setupTabKeyboard();
+
+// Position the tab indicator under the initially-active tab.
+// Wait a beat so web fonts have applied (tab widths depend on font metrics).
+function initTabIndicator() {
+  const active = document.querySelector('.tab-btn[aria-selected="true"]');
+  if (active) moveTabIndicator(active);
+}
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(initTabIndicator);
+}
+window.addEventListener('load', initTabIndicator);
+window.addEventListener('resize', () => {
+  const active = document.querySelector('.tab-btn[aria-selected="true"]');
+  if (active) moveTabIndicator(active);
+});
+
+// Copy-to-clipboard wiring for the two hero highlight boxes.
+function wireCopyBtn(btnId, valId, subId, label) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const v = (document.getElementById(valId)?.textContent || '').trim();
+    const s = (document.getElementById(subId)?.textContent || '').trim();
+    if (!v || v === '—') { showToast('Set dose, strength and water first.', 'warning'); return; }
+    copyToClipboard(`${v}${s ? ' · ' + s : ''}`, label);
+  });
+}
+wireCopyBtn('copy-main',  'res-units',       'res-units-sub',       'Units to draw');
+wireCopyBtn('copy-blend', 'blend-res-units', 'blend-res-units-sub', 'Blend units to draw');
+
+// Inline validation on number inputs (on blur).
+document.querySelectorAll('input[type="number"]').forEach(inp => {
+  inp.addEventListener('blur', () => validateNumberInput(inp));
+  inp.addEventListener('input', () => {
+    if (inp.classList.contains('invalid')) validateNumberInput(inp);
+  });
+});
+</script>
 </body>
 </html>
