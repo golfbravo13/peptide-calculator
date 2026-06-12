@@ -982,6 +982,166 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PROTOCOLS TAB — scoped styles (won't affect other tabs)
+    ════════════════════════════════════════════════════════════════ */
+    #pv-mine .proto-intro {
+      font-size: 0.85rem; color: var(--text2); margin-bottom: 18px; line-height: 1.6;
+    }
+    #pv-mine .profile-chips {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 4px;
+    }
+    #pv-mine .chip {
+      background: var(--bg-raised); border: 1px solid var(--border);
+      border-radius: var(--r-pill); padding: 5px 13px; font-size: 0.76rem; color: var(--text2);
+    }
+    #pv-mine .chip b { color: var(--accent); font-weight: 700; }
+
+    /* Best-times timing strip */
+    #pv-mine .timing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px;
+    }
+    @media (max-width: 600px) { #pv-mine .timing-grid { grid-template-columns: 1fr; } }
+    #pv-mine .timing-col {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 14px 15px;
+    }
+    #pv-mine .timing-col h4 {
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 4px; display: flex; align-items: center; gap: 7px;
+    }
+    #pv-mine .timing-col .when { font-size: 0.7rem; color: var(--ink-quiet); margin-bottom: 11px; }
+    #pv-mine .timing-col ul { list-style: none; margin: 0; padding: 0; }
+    #pv-mine .timing-col li {
+      font-size: 0.82rem; color: var(--text); padding: 5px 0;
+      border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; gap: 8px;
+    }
+    #pv-mine .timing-col li:first-child { border-top: none; }
+    #pv-mine .timing-col li .tag { font-size: 0.68rem; color: var(--text2); white-space: nowrap; }
+    #pv-mine .dot-am   { width:9px;height:9px;border-radius:50%;background:#FFB74D;flex-shrink:0; }
+    #pv-mine .dot-day  { width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0; }
+    #pv-mine .dot-pm   { width:9px;height:9px;border-radius:50%;background:var(--primary);flex-shrink:0; }
+    #pv-mine .fast-flag { color:#FFB74D; font-weight:700; }
+
+    /* Per-peptide protocol section */
+    #pv-mine .proto-sec { margin-bottom: 8px; }
+    #pv-mine .proto-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    #pv-mine .proto-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    #pv-mine .proto-head h3 { font-size: 1.06rem; font-weight: 700; color: var(--ink-strong); margin: 0; }
+    #pv-mine .badge {
+      display: inline-block; padding: 3px 9px; border-radius: var(--r-pill);
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    }
+    #pv-mine .badge-purple { background: var(--primary-soft); color: var(--primary); }
+    #pv-mine .badge-teal   { background: rgba(56,224,199,0.12); color: var(--accent); }
+    #pv-mine .badge-orange { background: rgba(255,138,92,0.15); color: var(--warning); }
+    #pv-mine .badge-green  { background: rgba(61,220,151,0.12); color: var(--success); }
+    #pv-mine .badge-sky    { background: rgba(79,195,247,0.14); color: #4FC3F7; }
+    #pv-mine .badge-amber  { background: rgba(255,183,77,0.14); color: #FFB74D; }
+    #pv-mine .badge-pink   { background: rgba(255,121,198,0.14); color: #FF79C6; }
+    #pv-mine .proto-note {
+      font-size: 0.82rem; color: var(--text2); margin-bottom: 12px;
+      padding: 11px 14px; background: var(--bg-surface); border-radius: var(--r-sm);
+      border-left: 3px solid var(--border); line-height: 1.55;
+    }
+    #pv-mine .proto-note b { color: var(--data); }
+    #pv-mine table {
+      width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 0.82rem;
+    }
+    #pv-mine thead tr { background: var(--bg-raised); }
+    #pv-mine th {
+      padding: 9px 13px; text-align: left; font-weight: 600; color: var(--text2);
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    #pv-mine td { padding: 9px 13px; border-bottom: 1px solid var(--border); color: var(--text); }
+    #pv-mine tbody tr:last-child td { border-bottom: none; }
+    #pv-mine tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    #pv-mine td.hl { color: var(--data); font-weight: 600; font-variant-numeric: tabular-nums; }
+    #pv-mine td.muted { color: var(--text2); font-size: 0.78rem; }
+    #pv-mine .tip {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--r-sm);
+      padding: 13px 15px; font-size: 0.8rem; color: var(--text2); line-height: 1.6; margin-top: 6px;
+    }
+    #pv-mine .tip b { color: var(--text); }
+    #pv-mine .proto-divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+    /* Weekly schedule grid */
+    #pv-mine .schedule-grid {
+      display: grid; grid-template-columns: 92px 1fr; border: 1px solid var(--border);
+      border-radius: var(--r-md); overflow: hidden; font-size: 0.82rem;
+    }
+    #pv-mine .sched-h {
+      background: var(--bg-raised); color: var(--text2); font-size: 0.72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em; padding: 9px 13px; border-bottom: 1px solid var(--border);
+    }
+    #pv-mine .day-cell, #pv-mine .inj-cell { padding: 9px 13px; border-bottom: 1px solid var(--border); }
+    #pv-mine .day-cell { color: var(--text2); font-weight: 600; background: rgba(255,255,255,0.01); }
+    #pv-mine .inj-cell { color: var(--text); }
+    #pv-mine .inj-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: 2px 0; }
+    #pv-mine .pill-bpc { color: var(--accent); font-weight: 600; }
+    #pv-mine .pill-tb  { color: var(--warning); font-weight: 600; }
+    #pv-mine .pill-ret { color: var(--primary); font-weight: 600; }
+    #pv-mine .pill-cjc { color: #4FC3F7; font-weight: 600; }
+    #pv-mine .pill-ipa { color: #FFB74D; font-weight: 600; }
+    #pv-mine .pill-glow{ color: #FF79C6; font-weight: 600; }
+    #pv-mine .sep { color: var(--border-strong); margin: 0 3px; }
+    #pv-mine .tlabel { font-size: 0.68rem; color: var(--text2); }
+    #pv-mine .sunday-row { background: rgba(124,108,255,0.06); }
+    #pv-mine .proto-use {
+      margin-top: 10px; background: var(--primary-soft); color: var(--primary);
+      border: 1px solid rgba(124,108,255,0.3); border-radius: var(--r-pill);
+      padding: 7px 15px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: background var(--t-fast) var(--ease);
+    }
+    #pv-mine .proto-use:hover { background: rgba(124,108,255,0.22); }
+    #pv-mine .proto-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    #pv-mine .proto-actions .proto-use { margin-top: 0; }
+    #pv-mine .proto-add {
+      background: var(--accent-soft); color: var(--accent);
+      border: 1px solid rgba(56,224,199,0.32); border-radius: var(--r-pill);
+      padding: 7px 15px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: background var(--t-fast) var(--ease);
+    }
+    #pv-mine .proto-add:hover { background: rgba(56,224,199,0.2); }
+
+    /* Protocol sub-navigation (segmented) */
+    #tab-protocols .proto-nav {
+      display: flex; gap: 4px; padding: 4px; margin-bottom: 20px;
+      background: var(--bg-raised); border: 1px solid var(--border-subtle);
+      border-radius: var(--r-pill); position: sticky; top: 8px; z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+    #tab-protocols .proto-viewbtn {
+      flex: 1; padding: 9px 12px; border: none; background: transparent;
+      color: var(--ink-muted); font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      border-radius: var(--r-pill); cursor: pointer; transition: all var(--t-fast) var(--ease);
+      min-height: 40px; letter-spacing: -0.005em;
+    }
+    #tab-protocols .proto-viewbtn:hover { color: var(--ink); }
+    #tab-protocols .proto-viewbtn.active {
+      background: var(--primary); color: #fff; box-shadow: var(--shadow-sm);
+    }
+
+    /* Today / next-injection surface */
+    #tab-protocols #today-card { border: 1px solid rgba(56,224,199,0.28); }
+    #tab-protocols .today-doses { display: flex; flex-direction: column; gap: 8px; }
+    #tab-protocols .today-row {
+      display: flex; align-items: center; gap: 10px; padding: 9px 13px;
+      background: var(--bg-raised); border-radius: var(--r-sm); border-left: 3px solid var(--accent);
+      font-size: 0.85rem;
+    }
+    #tab-protocols .today-row.fasted { border-left-color: #FFB74D; }
+    #tab-protocols .today-row .tslot {
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text2); min-width: 58px; font-weight: 700;
+    }
+    #tab-protocols .today-row .tnames { flex: 1; color: var(--text); }
+    #tab-protocols .today-row .tflag { font-size: 0.68rem; color: #FFB74D; font-weight: 700; white-space: nowrap; }
+    #tab-protocols .today-rest { padding: 10px 13px; color: var(--text2); font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -1030,6 +1190,11 @@
       <circle cx="12" cy="12" r="9"/>
       <path d="M12 11v5M12 8h0"/>
     </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4.5" width="18" height="17" rx="2"/>
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>
+      <path d="M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -1048,11 +1213,10 @@
   </header>
 
   <div class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab-btn" role="tab" id="tabbtn-calc"    aria-controls="tab-calc"    aria-selected="true"  data-tab="calc"    onclick="switchTab('calc',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-syringe"/></svg><span>Calculator</span></button>
-    <button class="tab-btn" role="tab" id="tabbtn-presets" aria-controls="tab-presets" aria-selected="false" data-tab="presets" tabindex="-1" onclick="switchTab('presets',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-dna"/></svg><span>Peptide Guide</span></button>
-    <button class="tab-btn" role="tab" id="tabbtn-vials"   aria-controls="tab-vials"   aria-selected="false" data-tab="vials"   tabindex="-1" onclick="switchTab('vials',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-vial"/></svg><span>Vial Tracker</span></button>
-    <button class="tab-btn" role="tab" id="tabbtn-dosage"  aria-controls="tab-dosage"  aria-selected="false" data-tab="dosage"  tabindex="-1" onclick="switchTab('dosage',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-doc"/></svg><span>Dosage</span></button>
-    <button class="tab-btn" role="tab" id="tabbtn-cycles"  aria-controls="tab-cycles"  aria-selected="false" data-tab="cycles"  tabindex="-1" onclick="switchTab('cycles',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Cycles</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-calc"    aria-controls="tab-calc"    aria-selected="true"  data-tab="calc"    onclick="switchTab('calc',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-syringe"/></svg><span>Calculate</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-presets" aria-controls="tab-presets" aria-selected="false" data-tab="presets" tabindex="-1" onclick="switchTab('presets',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-dna"/></svg><span>Guide</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-vials"   aria-controls="tab-vials"   aria-selected="false" data-tab="vials"   tabindex="-1" onclick="switchTab('vials',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-vial"/></svg><span>Track</span></button>
+    <button class="tab-btn" role="tab" id="tabbtn-protocols" aria-controls="tab-protocols" aria-selected="false" data-tab="protocols" tabindex="-1" onclick="switchTab('protocols',this)"><svg class="tab-icon" aria-hidden="true"><use href="#i-calendar"/></svg><span>Protocol</span></button>
     <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
   </div>
 
@@ -1409,11 +1573,286 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 4 — DOSAGE PROTOCOLS
-  ════════════════════════════════════════════════════════════════════ -->
-  <div id="tab-dosage" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-dosage" hidden>
+  <!-- ══════════════════════════════════════════════════════════════
+       TAB 4 — PROTOCOL (My Protocol · Dosage · Cycles)
+  ══════════════════════════════════════════════════════════════ -->
+  <div id="tab-protocols" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-protocols" hidden>
 
+    <div class="proto-nav" role="tablist" aria-label="Protocol views">
+      <button class="proto-viewbtn active" role="tab" aria-selected="true" onclick="showProtoView('mine',this)">My Protocol</button>
+      <button class="proto-viewbtn" role="tab" aria-selected="false" onclick="showProtoView('dosage',this)">Dosage Tables</button>
+      <button class="proto-viewbtn" role="tab" aria-selected="false" onclick="showProtoView('cycles',this)">Cycles</button>
+    </div>
+
+    <div class="proto-view" id="pv-mine">
+
+    <!-- TODAY / NEXT INJECTION -->
+    <div class="card" id="today-card">
+      <div class="card-title">📍 Today &mdash; <span id="today-name" style="color:var(--accent);"></span></div>
+      <div id="today-doses" class="today-doses"></div>
+      <div class="tip" id="today-tip" style="margin-top:12px;"></div>
+    </div>
+
+    <!-- Intro + profile -->
+    <div class="card">
+      <div class="card-title">🗓️ Protocol Reference</div>
+      <p class="proto-intro">Your personal dosage protocols, best injection times, and the full weekly schedule — all in one place. Tap <strong style="color:var(--primary)">→ Calculator</strong> on any peptide to pre-fill the main calc.</p>
+      <div class="profile-chips">
+        <div class="chip">Male <b>·</b> 90 kg</div>
+        <div class="chip">Gym <b>5–6×/wk</b></div>
+        <div class="chip">Weight <b>Stable</b></div>
+        <div class="chip">Bloodwork <b>Clear</b></div>
+        <div class="chip">Goal <b>Recomp &amp; Recovery</b></div>
+      </div>
+    </div>
+
+    <!-- BEST TIMES TO TAKE -->
+    <div class="card">
+      <div class="card-title">⏰ Best Times to Take</div>
+      <p class="proto-intro" style="margin-bottom:14px;">When to inject matters as much as how much. The GH stack is the only timing-critical one — it <strong style="color:#FFB74D">must be fasted at bedtime</strong>. Everything else is flexible.</p>
+      <div class="timing-grid">
+        <div class="timing-col">
+          <h4><span class="dot-am"></span>Morning</h4>
+          <div class="when">On waking / AM</div>
+          <ul>
+            <li><span class="pill-bpc">BPC-157</span><span class="tag">1st of 2 daily</span></li>
+            <li><span>GHK-Cu <span class="badge badge-pink" style="font-size:0.6rem;">GLOW</span></span><span class="tag">food-independent</span></li>
+            <li><span class="pill-cjc">CJC</span><span class="pill-ipa" style="margin-left:-2px;">+Ipa</span><span class="tag fast-flag">opt. fasted AM</span></li>
+          </ul>
+        </div>
+        <div class="timing-col">
+          <h4><span class="dot-day"></span>Daytime</h4>
+          <div class="when">Any time · no fasting</div>
+          <ul>
+            <li><span class="pill-tb">TB-500</span><span class="tag">2×/week</span></li>
+            <li><span class="pill-ret">Retatrutide</span><span class="tag">1×/week, same day</span></li>
+            <li><span class="pill-bpc">BPC-157</span><span class="tag">2nd dose (PM)</span></li>
+          </ul>
+        </div>
+        <div class="timing-col">
+          <h4><span class="dot-pm"></span>Pre-Bed <span class="fast-flag" style="font-size:0.62rem;">⚠ FASTED</span></h4>
+          <div class="when">2–3 hrs after last meal</div>
+          <ul>
+            <li><span class="pill-cjc">CJC-1295</span><span class="tag fast-flag">required</span></li>
+            <li><span class="pill-ipa">Ipamorelin</span><span class="tag fast-flag">required</span></li>
+            <li><span style="color:var(--text2);font-size:0.78rem;">→ mix in 1 syringe</span><span class="tag">12 units</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:14px;border-left:3px solid #FFB74D;">
+        <b>⚠ The one rule that matters most:</b> insulin from food competes with growth-hormone release. Eat well through the day, then inject the CJC-1295 + Ipamorelin stack at bedtime on an empty stomach (2–3 hrs fasted) so the GH pulse fires during deep sleep.
+      </div>
+    </div>
+
+    <!-- INDIVIDUAL PROTOCOLS -->
+    <div class="card">
+      <div class="card-title">💉 Individual Peptide Protocols</div>
+
+      <!-- Retatrutide -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:var(--primary);"></span><h3>Retatrutide</h3><span class="badge badge-purple">GLP-1 / GIP / Glucagon</span></div>
+        <div class="proto-note">At 90 kg with stable weight, <b>2–4 mg/week is the sensible ceiling</b> — metabolic benefit without the aggressive GI effects of clinical weight-loss doses (9–12 mg). Goal is recomposition, not weight reduction. <b>Reassess at 8 weeks.</b></div>
+        <table>
+          <thead><tr><th>Phase</th><th>Dose</th><th>Duration</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Start — tolerance</td><td class="hl">0.5 mg</td><td class="muted">Wk 1–2</td><td class="muted">Subcut, same day weekly</td></tr>
+            <tr><td>Titration 1</td><td class="hl">1.0 mg</td><td class="muted">Wk 3–4</td><td class="muted">Monitor GI tolerance</td></tr>
+            <tr><td>Titration 2</td><td class="hl">2.0 mg</td><td class="muted">Wk 5–8</td><td class="muted">Reassess end of Wk 8</td></tr>
+            <tr><td>Maintenance</td><td class="hl">2–4 mg</td><td class="muted">Ongoing</td><td class="muted">Adjust to response</td></tr>
+          </tbody>
+        </table>
+        <div class="tip"><b>Inject:</b> Subcut (abdomen/thigh/upper arm) · same day each week · no fasting · 30–60 min after a light meal reduces nausea during titration · keep protein ~<b>180 g/day</b> to protect muscle.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(2,10,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ Calculator</button><button class="proto-add" onclick="addProtocolVial('Retatrutide',10,3,2)">+ Add to Tracker</button></div>
+      </div>
+
+      <div class="proto-divider"></div>
+
+      <!-- BPC-157 -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:var(--accent);"></span><h3>BPC-157</h3><span class="badge badge-teal">Repair &amp; Recovery</span></div>
+        <div class="proto-note">Ideal for <b>joint health, connective tissue repair and gut integrity</b> — highly relevant training 5–6 days/week. Works locally, so injection site matters.</div>
+        <table>
+          <thead><tr><th>Parameter</th><th>Recommendation</th></tr></thead>
+          <tbody>
+            <tr><td>Dose</td><td class="hl">250 mcg × 2 daily <span style="color:var(--text2);font-weight:400;">(500 mcg/day)</span></td></tr>
+            <tr><td>Timing</td><td>Morning + Evening</td></tr>
+            <tr><td>Injection</td><td>Subcut · 27–30 g needle</td></tr>
+            <tr><td>Site</td><td>Near problem area · else abdomen</td></tr>
+            <tr><td>Cycle</td><td class="hl">6–8 wks on → 4 wks off</td></tr>
+            <tr><td>BAC Water</td><td>3 mL per vial</td></tr>
+          </tbody>
+        </table>
+        <div class="tip"><b>Site tip:</b> For a specific joint/tendon issue, rotate injections near that site — BPC-157 has a strong local effect. TB-500 handles systemic coverage.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(0.25,5,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ Calculator</button><button class="proto-add" onclick="addProtocolVial('BPC-157',5,3,0.25)">+ Add to Tracker</button></div>
+      </div>
+
+      <div class="proto-divider"></div>
+
+      <!-- TB-500 -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:var(--warning);"></span><h3>TB-500</h3><span class="badge badge-orange">Systemic Recovery</span></div>
+        <div class="proto-note">Works <b>systemically</b> — site doesn't need to be near the injury. Focus is systemic recovery, flexibility and connective-tissue resilience. 2.5 mg loading suits 90 kg; scaling to 5 mg is unnecessary here.</div>
+        <table>
+          <thead><tr><th>Phase</th><th>Dose</th><th>Frequency</th><th>Duration</th></tr></thead>
+          <tbody>
+            <tr><td>Loading</td><td class="hl">2.0–2.5 mg</td><td>2×/wk (Mon + Thu)</td><td class="muted">Wk 1–6</td></tr>
+            <tr><td>Maintenance</td><td class="hl">2.0 mg</td><td>1×/wk</td><td class="muted">Wk 7+</td></tr>
+          </tbody>
+        </table>
+        <div class="tip"><b>Inject:</b> Subcut · any site (systemic) · any time of day · no fasting · BAC Water 3 mL per vial.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(2.5,10,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ Calculator</button><button class="proto-add" onclick="addProtocolVial('TB-500',10,3,2.5)">+ Add to Tracker</button></div>
+      </div>
+
+      <div class="proto-divider"></div>
+
+      <!-- CJC-1295 -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:#4FC3F7;"></span><h3>CJC-1295 (No DAC)</h3><span class="badge badge-sky">GHRH · GH Stack</span></div>
+        <div class="proto-note">A GHRH agonist — tells the pituitary to <b>release growth hormone</b>. Always stacked with Ipamorelin for a synergistic pulse. At 90 kg, <b>200 mcg is the sweet spot</b>. <b style="color:#FFB74D;">⚠ Fasting required</b> — carbs/fat before injection blunt the GH response.</div>
+        <table>
+          <thead><tr><th>Phase</th><th>Dose</th><th>Frequency</th><th>Duration</th></tr></thead>
+          <tbody>
+            <tr><td>Start</td><td class="hl">100 mcg</td><td>Daily (bedtime)</td><td class="muted">Wk 1–2</td></tr>
+            <tr><td>Titration</td><td class="hl">150 mcg</td><td>Daily (bedtime)</td><td class="muted">Wk 3–4</td></tr>
+            <tr><td>Maintenance</td><td class="hl">200 mcg</td><td>Daily (bedtime)</td><td class="muted">Wk 5–12</td></tr>
+          </tbody>
+        </table>
+        <table style="margin-top:8px;">
+          <thead><tr><th>Parameter</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>Vial / BAC</td><td class="hl">10 mg / 3 mL <span style="color:var(--text2);font-weight:400;">= 3,333 mcg/mL</span></td></tr>
+            <tr><td>U-100 units</td><td>100 mcg = 3 u · 150 = 4.5 u · <b>200 = 6 u</b></td></tr>
+            <tr><td>Cycle</td><td class="hl">8–12 wks on → 4–8 wks off</td></tr>
+          </tbody>
+        </table>
+        <div class="tip" style="border-left:3px solid #4FC3F7;"><b>⚠ Fasting rule:</b> inject at bedtime, ≥2–3 hrs after your last meal. Eat well during the day, then let the bedtime injection work in deep sleep.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(0.2,10,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ Calculator</button><button class="proto-add" onclick="addProtocolVial('CJC-1295',10,3,0.2)">+ Add to Tracker</button></div>
+      </div>
+
+      <div class="proto-divider"></div>
+
+      <!-- Ipamorelin -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:#FFB74D;"></span><h3>Ipamorelin</h3><span class="badge badge-amber">GHRP · GH Stack</span></div>
+        <div class="proto-note">A selective GH-releasing peptide acting on a <b>different receptor</b> to CJC-1295 — together they produce a much larger combined GH pulse. Selective: doesn't meaningfully raise cortisol or prolactin. Same fasting rule.</div>
+        <table>
+          <thead><tr><th>Phase</th><th>Dose</th><th>Frequency</th><th>Duration</th></tr></thead>
+          <tbody>
+            <tr><td>Start</td><td class="hl">100 mcg</td><td>Daily (with CJC)</td><td class="muted">Wk 1–2</td></tr>
+            <tr><td>Titration</td><td class="hl">150–200 mcg</td><td>Daily (with CJC)</td><td class="muted">Wk 3–4</td></tr>
+            <tr><td>Maintenance</td><td class="hl">200 mcg</td><td>Daily (bedtime)</td><td class="muted">Wk 5–12</td></tr>
+          </tbody>
+        </table>
+        <div class="tip" style="border-left:3px solid #FFB74D;"><b>GH Stack:</b> draw CJC-1295 200 mcg (6 u) + Ipamorelin 200 mcg (6 u) into the same U-100 syringe = <b>12 units total</b>. One bedtime injection, fasted. Vial 10 mg / 3 mL.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(0.2,10,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ Calculator</button><button class="proto-add" onclick="addProtocolVial('Ipamorelin',10,3,0.2)">+ Add to Tracker</button></div>
+      </div>
+    </div>
+
+    <!-- STACKS -->
+    <div class="card">
+      <div class="card-title">🧬 Signature Stacks</div>
+
+      <!-- WOLVERINE STACK -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:var(--accent);"></span><h3>Wolverine Stack</h3><span class="badge badge-teal">BPC-157 + TB-500</span></div>
+        <div class="proto-note">The classic <b>recovery &amp; healing</b> stack — BPC-157's local tissue repair paired with TB-500's systemic reach. Together they cover tendons, ligaments, muscle and gut. The go-to for injury rehab and hard training blocks.</div>
+        <table>
+          <thead><tr><th>Component</th><th>Dose</th><th>Timing</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill-bpc">BPC-157</span></td><td class="hl">250 mcg ×2</td><td>AM + PM, 8–12 h apart</td><td>Daily</td></tr>
+            <tr><td><span class="pill-tb">TB-500</span></td><td class="hl">2.0–2.5 mg</td><td>Any time, no fasting</td><td>2×/wk loading → 1×/wk</td></tr>
+          </tbody>
+        </table>
+        <div class="tip"><b>Cycle:</b> run 6–8 weeks, then 4 weeks off. <b>Best times:</b> BPC-157 morning &amp; evening; TB-500 whenever convenient (Mon + Thu pairs well). Neither needs fasting — keep them separate from the bedtime GH stack only for injection comfort, not for efficacy. <b>Note:</b> BPC-157 is WADA-banned — avoid if drug-tested.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="prefillCalc(0.25,5,3);switchTab('calc',document.getElementById('tabbtn-calc'))">→ BPC in Calculator</button><button class="proto-add" onclick="addProtocolVial('BPC-157',5,3,0.25)">+ Add to Tracker</button></div>
+      </div>
+
+      <div class="proto-divider"></div>
+
+      <!-- GLOW STACK -->
+      <div class="proto-sec">
+        <div class="proto-head"><span class="proto-dot" style="background:#FF79C6;"></span><h3>GLOW Stack</h3><span class="badge badge-pink">GHK-Cu + TB-500 + BPC-157</span></div>
+        <div class="proto-note">The <b>skin, hair &amp; aesthetic recovery</b> stack. GHK-Cu drives collagen, skin quality and hair, while TB-500 + BPC-157 handle tissue repair. Often sold as a single blended 70 mg vial — reconstitute once, draw one shot.</div>
+        <table>
+          <thead><tr><th>Component</th><th>Typical share (70 mg vial)</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><span style="color:#FF79C6;font-weight:600;">GHK-Cu</span></td><td class="hl">50 mg</td><td class="muted">Collagen, skin, hair</td></tr>
+            <tr><td><span class="pill-tb">TB-500</span></td><td class="hl">10 mg</td><td class="muted">Systemic repair</td></tr>
+            <tr><td><span class="pill-bpc">BPC-157</span></td><td class="hl">10 mg</td><td class="muted">Local tissue repair</td></tr>
+          </tbody>
+        </table>
+        <table style="margin-top:8px;">
+          <thead><tr><th>Parameter</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>Dose</td><td class="hl">~300 mcg blend / day</td></tr>
+            <tr><td>Best time</td><td>Evening preferred (GHK-Cu can be mildly stimulating) · no fasting</td></tr>
+            <tr><td>Cycle</td><td class="hl">4–8 wks on → 4 wks off</td></tr>
+            <tr><td>BAC Water</td><td>2–3 mL per 70 mg vial</td></tr>
+          </tbody>
+        </table>
+        <div class="tip" style="border-left:3px solid #FF79C6;"><b>Heads-up:</b> GHK-Cu has a deep blue colour — normal, that's the copper. Inject subcut and rotate sites. Because it's a fixed blend, use the <b>Blend</b> mode in the Calculator to dial the exact units.</div>
+        <div class="proto-actions"><button class="proto-use" onclick="switchTab('calc',document.getElementById('tabbtn-calc'));setTimeout(()=>{var b=document.querySelectorAll('.mode-btn'); if(b[1]) switchCalcMode('blend',b[1]);},120)">→ Blend Calculator</button><button class="proto-add" onclick="addProtocolVial('GLOW Blend',70,3,0.3)">+ Add to Tracker</button></div>
+      </div>
+    </div>
+
+    <!-- WEEKLY SCHEDULE -->
+    <div class="card">
+      <div class="card-title">📅 Combined Weekly Schedule</div>
+      <p class="proto-intro" style="margin-bottom:14px;">All five running together. BPC-157 daily (AM + PM); TB-500 twice weekly; CJC + Ipamorelin daily at bedtime (fasted); Retatrutide once weekly on Sunday. <span style="color:#FFB74D;">⚠ GH stack = fasted bedtime only.</span></p>
+      <div class="schedule-grid">
+        <div class="sched-h">Day</div>
+        <div class="sched-h">Injections</div>
+
+        <div class="day-cell">Monday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span><span class="sep">·</span><span class="pill-tb">TB-500</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell">Tuesday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell">Wednesday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell">Thursday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span><span class="sep">·</span><span class="pill-tb">TB-500</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell">Friday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell">Saturday</div>
+        <div class="inj-cell">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+
+        <div class="day-cell sunday-row">Sunday</div>
+        <div class="inj-cell sunday-row">
+          <div class="inj-row"><span class="pill-bpc">BPC-157</span><span class="tlabel">(AM)</span><span class="sep">·</span><span class="pill-bpc">BPC-157</span><span class="tlabel">(PM)</span><span class="sep">·</span><span class="pill-ret">Retatrutide</span></div>
+          <div class="inj-row"><span class="pill-cjc">CJC</span><span class="sep">+</span><span class="pill-ipa">Ipamorelin</span><span class="tlabel">(bedtime, fasted)</span></div>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:14px;"><b>GH stack shortcut:</b> CJC (6 u) + Ipamorelin (6 u) in one syringe = 12 u, bedtime, fasted. · <b>BPC-157 &amp; TB-500</b> have no food restrictions. · <b>Retatrutide</b> same day every week, no fasting.</div>
+      <div class="source-note" style="margin-top:16px;">Personalised reference (90 kg male, recomp goal). Educational use only — not medical advice. Always consult a qualified healthcare professional.</div>
+    </div>
+
+  
+    </div>
+
+    <div class="proto-view" id="pv-dosage" hidden>
     <div class="card">
 
       <!-- 1. RETATRUTIDE -->
@@ -1785,12 +2224,10 @@
       <div class="source-note">Source: PeptideDosages.com — Educational reference only. Not medical advice. Research peptides not approved by the FDA (except bremelanotide/Vyleesi for HSDD). Consult a qualified healthcare professional before use.</div>
 
     </div>
-  </div>
+  
+    </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TAB 5 — CYCLE GUIDE
-  ════════════════════════════════════════════════════════════════════ -->
-  <div id="tab-cycles" class="tab-content" role="tabpanel" aria-labelledby="tabbtn-cycles" hidden>
+    <div class="proto-view" id="pv-cycles" hidden>
     <div class="card">
       <div class="card-title">⏱️ Typical Peptide Cycle Lengths</div>
       <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">
@@ -2221,6 +2658,9 @@
 
       <div class="source-note" style="margin-top:20px;">Source: PeptideDosages.com &amp; published research — Educational reference only. Individual cycles vary by goal, dosage, and response. Not medical advice.</div>
     </div>
+  
+    </div>
+
   </div>
 
   </main>
@@ -2595,6 +3035,66 @@ function switchTab(name, btn) {
   btn.setAttribute('aria-selected', 'true');
   btn.setAttribute('tabindex', '0');
   moveTabIndicator(btn);
+  if (name === 'protocols') renderToday();
+}
+
+// ─── PROTOCOL SUB-VIEWS (My Protocol / Dosage / Cycles) ────────────────
+function showProtoView(view, btn) {
+  document.querySelectorAll('#tab-protocols .proto-view').forEach(el => el.hidden = true);
+  const target = document.getElementById('pv-' + view);
+  if (target) target.hidden = false;
+  document.querySelectorAll('#tab-protocols .proto-viewbtn').forEach(b => {
+    b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
+  });
+  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+}
+
+// ─── TODAY / NEXT-INJECTION SURFACE (driven by the weekly schedule) ────
+const WEEKLY_SCHEDULE = {
+  // day index 0=Sun … 6=Sat
+  base: [
+    { slot: 'Morning', names: 'BPC-157', fasted: false },
+    { slot: 'Evening', names: 'BPC-157', fasted: false },
+    { slot: 'Bedtime', names: 'CJC-1295 + Ipamorelin', fasted: true }
+  ]
+};
+function dosesForDay(d) {
+  const rows = WEEKLY_SCHEDULE.base.map(r => ({ ...r }));
+  if (d === 1 || d === 4) rows.splice(2, 0, { slot: 'Any time', names: 'TB-500', fasted: false }); // Mon/Thu
+  if (d === 0) rows.splice(rows.length - 1, 0, { slot: 'Any time', names: 'Retatrutide', fasted: false }); // Sun
+  return rows;
+}
+function renderToday() {
+  const wrap = document.getElementById('today-doses');
+  const nameEl = document.getElementById('today-name');
+  const tipEl = document.getElementById('today-tip');
+  if (!wrap) return;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const d = new Date().getDay();
+  if (nameEl) nameEl.textContent = days[d];
+  const rows = dosesForDay(d);
+  wrap.innerHTML = rows.map(r =>
+    `<div class="today-row${r.fasted ? ' fasted' : ''}">` +
+      `<span class="tslot">${r.slot}</span>` +
+      `<span class="tnames">${r.names}</span>` +
+      (r.fasted ? `<span class="tflag">⚠ fasted</span>` : '') +
+    `</div>`
+  ).join('');
+  if (tipEl) tipEl.innerHTML = '<b>Reminder:</b> the bedtime GH stack must be injected fasted — at least 2–3 hrs after your last meal.';
+}
+
+// ─── ADD A PROTOCOL PEPTIDE STRAIGHT TO THE VIAL TRACKER ───────────────
+function addProtocolVial(name, vialMg, waterMl, doseMg, notes) {
+  if (vials.some(v => v.name.toLowerCase() === name.toLowerCase())) {
+    showToast(name + ' is already in your tracker', 'info', 2200);
+    switchTab('vials', document.getElementById('tabbtn-vials'));
+    return;
+  }
+  const concMgMl = vialMg / waterMl;
+  vials.push({ id: Date.now(), name, vialMg, waterMl, doseMg, notes: notes || 'Added from Protocol', concMgMl, mgUsed: 0, addedAt: new Date().toLocaleDateString() });
+  saveVials(); renderVials();
+  showToast(name + ' added to tracker', 'success');
+  switchTab('vials', document.getElementById('tabbtn-vials'));
 }
 
 function moveTabIndicator(btn) {
@@ -2941,6 +3441,7 @@ function prefillCalc(dose, strength, water) {
 // ─── INIT ──────────────────────────────────────────────────────────────
 renderPeptidePills();
 renderVials();
+renderToday();
 buildBlendPresetPills();
 buildBlendWaterPills();
 setupTabKeyboard();
