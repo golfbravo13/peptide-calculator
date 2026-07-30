@@ -504,6 +504,7 @@
     /* ── PEPTIDE PILLS (preset list) ── */
     .peptide-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
     .peptide-pill {
+      position: relative;
       padding: 7px 13px;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
@@ -519,6 +520,47 @@
       border-color: var(--accent);
       color: var(--accent);
       background: var(--accent-soft);
+    }
+    /* Hover tooltip (desktop): category + brief description */
+    .peptide-pill[data-tip]::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%; bottom: calc(100% + 8px);
+      transform: translateX(-50%) translateY(4px);
+      width: max-content; max-width: 240px;
+      padding: 8px 11px;
+      border-radius: var(--r-sm);
+      background: var(--bg-elevated, #1a1d27);
+      color: var(--ink, #e8ecf7);
+      border: 1px solid var(--border-strong, #2c3040);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      font-size: 0.72rem; font-weight: 500; line-height: 1.35;
+      text-align: left; white-space: normal;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+      z-index: 50;
+    }
+    .peptide-pill[data-tip]::before {
+      content: ""; position: absolute;
+      left: 50%; bottom: calc(100% + 3px);
+      transform: translateX(-50%) translateY(4px);
+      border: 5px solid transparent;
+      border-top-color: var(--border-strong, #2c3040);
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+      z-index: 51;
+    }
+    .peptide-pill[data-tip]:hover::after,
+    .peptide-pill[data-tip]:hover::before {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    @media (hover: none) { .peptide-pill[data-tip]::after, .peptide-pill[data-tip]::before { display: none; } }
+    .pep-cat-chip {
+      display: inline-block; margin-left: 6px;
+      padding: 2px 9px; border-radius: 999px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+      background: var(--accent-soft); color: var(--accent);
+      border: 1px solid var(--accent-soft); vertical-align: middle;
     }
 
     /* ── VIAL TRACKER ── */
@@ -1784,14 +1826,14 @@
         <table style="margin-top:8px;">
           <thead><tr><th>Parameter</th><th>Detail</th></tr></thead>
           <tbody>
-            <tr><td>Dose</td><td class="hl">~300 mcg blend / day</td></tr>
+            <tr><td>Dose</td><td class="hl">~700 mcg blend / day (10 units)</td></tr>
             <tr><td>Best time</td><td>Evening preferred (GHK-Cu can be mildly stimulating) · no fasting</td></tr>
             <tr><td>Cycle</td><td class="hl">4–8 wks on → 4 wks off</td></tr>
-            <tr><td>BAC Water</td><td>2–3 mL per 70 mg vial</td></tr>
+            <tr><td>BAC Water</td><td>10 mL per 70 mg vial (reduces sting)</td></tr>
           </tbody>
         </table>
         <div class="tip" style="border-left:3px solid #FF79C6;"><b>Heads-up:</b> GHK-Cu has a deep blue colour — normal, that's the copper. Inject subcut and rotate sites. Because it's a fixed blend, use the <b>Blend</b> mode in the Calculator to dial the exact units.</div>
-        <div class="proto-actions"><button class="proto-use" onclick="switchTab('calc',document.getElementById('tabbtn-calc'));setTimeout(()=>{var b=document.querySelectorAll('.mode-btn'); if(b[1]) switchCalcMode('blend',b[1]);},120)">→ Blend Calculator</button><button class="proto-add" onclick="addProtocolVial('GLOW Blend',70,3,0.3)">+ Add to Tracker</button></div>
+        <div class="proto-actions"><button class="proto-use" onclick="switchTab('calc',document.getElementById('tabbtn-calc'));setTimeout(()=>{var b=document.querySelectorAll('.mode-btn'); if(b[1]) switchCalcMode('blend',b[1]);},120)">→ Blend Calculator</button><button class="proto-add" onclick="addProtocolVial('GLOW Blend',70,10,0.7)">+ Add to Tracker</button></div>
       </div>
     </div>
 
@@ -1857,40 +1899,32 @@
 
       <!-- 1. RETATRUTIDE -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 1. Retatrutide — 10 mg Vial</div>
+        <div class="dosage-section-title">💊 1. Retatrutide — 10 / 20 / 30 mg Vials</div>
         <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 1.0 mL bacteriostatic water → ~10.0 mg/mL &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 100 mcg &nbsp;|&nbsp;
+          <strong>Reconstitution:</strong> Always 3.0 mL bacteriostatic water &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL &nbsp;|&nbsp;
           <strong>Frequency:</strong> Once weekly (SubQ) &nbsp;|&nbsp;
           <strong>Syringe:</strong> U-100 insulin
         </div>
+        <div class="dosage-note" style="margin-bottom:14px;">💡 <strong>Vial-progression strategy:</strong> keep the water at 3 mL and buy a stronger vial as you titrate up. This keeps every injection to a low, easy-to-measure unit count instead of ballooning volumes. 10 mg → 3.33 mg/mL, 20 mg → 6.67 mg/mL, 30 mg → 10 mg/mL.</div>
 
-        <div class="protocol-label">Standard / Gradual Protocol</div>
+        <div class="protocol-label">Titration Protocol (3 mL constant, vial steps up)</div>
         <div class="dosage-table-wrap">
           <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
+            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Vial (3 mL)</th><th>Conc.</th><th>Units</th><th>Volume</th></tr></thead>
             <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 9–12</td><td class="highlight">6 mg (6,000 mcg)</td><td>60 units</td><td>0.60 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 13+</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
+              <tr><td>Weeks 1–2</td><td class="highlight">0.5 mg</td><td>10 mg</td><td>3.33 mg/mL</td><td>15 units</td><td>0.15 mL</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">1 mg</td><td>10 mg</td><td>3.33 mg/mL</td><td>30 units</td><td>0.30 mL</td></tr>
+              <tr><td>Weeks 5–8</td><td class="highlight">2 mg</td><td>10 mg</td><td>3.33 mg/mL</td><td>60 units</td><td>0.60 mL</td></tr>
+              <tr><td>Weeks 9–12</td><td class="highlight">4 mg</td><td>20 mg ⬆</td><td>6.67 mg/mL</td><td>60 units</td><td>0.60 mL</td></tr>
+              <tr><td>Weeks 13–16</td><td class="highlight">6 mg</td><td>20 mg</td><td>6.67 mg/mL</td><td>90 units</td><td>0.90 mL</td></tr>
+              <tr><td>Weeks 17–20</td><td class="highlight">8 mg</td><td>30 mg ⬆</td><td>10 mg/mL</td><td>80 units</td><td>0.80 mL</td></tr>
+              <tr><td>Weeks 21+</td><td class="highlight">10 mg</td><td>30 mg</td><td>10 mg/mL</td><td>100 units</td><td>1.00 mL</td></tr>
+              <tr><td>Max (trial ceiling)</td><td class="highlight">12 mg</td><td>30 mg</td><td>10 mg/mL</td><td>120 units</td><td>1.20 mL</td></tr>
             </tbody>
           </table>
         </div>
-
-        <div class="protocol-label">Advanced / Aggressive Protocol</div>
-        <div class="dosage-table-wrap">
-          <table class="dosage-table">
-            <thead><tr><th>Phase</th><th>Weekly Dose</th><th>Units / Injection</th><th>Volume (mL)</th><th>Vials Needed</th></tr></thead>
-            <tbody>
-              <tr><td>Weeks 1–4</td><td class="highlight">2 mg (2,000 mcg)</td><td>20 units</td><td>0.20 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 5–8</td><td class="highlight">4 mg (4,000 mcg)</td><td>40 units</td><td>0.40 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 9–12</td><td class="highlight">8 mg (8,000 mcg)</td><td>80 units</td><td>0.80 mL</td><td>1 vial per dose</td></tr>
-              <tr><td>Weeks 13+</td><td class="highlight">12 mg (12,000 mcg)</td><td>120 units</td><td>1.20 mL</td><td><strong style="color:var(--warning)">2 vials per dose</strong></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="dosage-note">The 12 mg dose requires 2 vials (each reconstituted with 1.0 mL); draw 1.20 mL total and split into 2 separate injections at different sites. Cycle length: minimum 24 weeks; trials ran up to 48 weeks.</div>
+        <div class="dosage-note">⬆ = switch to a stronger vial at this step (still 3 mL water). For a 90 kg recomposition goal, 2–4 mg/week is a sensible ceiling — the higher rows are the full Phase-2 clinical range. The 12 mg dose is 120 units (1.20 mL) — either draw the full 1.20 mL in one go if your syringe allows, or split into two. Titrate every 4 weeks. Cycle: minimum 24 weeks; trials ran up to 48 weeks.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -1992,7 +2026,7 @@
             </tbody>
           </table>
         </div>
-        <div class="dosage-note">Cycle: 8–12 weeks typical, extendable to 16 weeks. Both protocols deliver ~6 mg/week at maintenance.</div>
+        <div class="dosage-note">Cycle: 8–12 weeks typical, extendable to 16 weeks. At the 2 mg maintenance dose the 5×/week schedule delivers ~10 mg/week, and the 3×/week schedule ~6 mg/week.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -2048,17 +2082,17 @@
             </tbody>
           </table>
         </div>
-        <div class="dosage-note">The FDA-approved on-demand dose (Vyleesi) is 1.75 mg SC before intercourse, max 8 doses/month. This daily research protocol titrates conservatively below that threshold. Monitor for nausea, flushing, and transient blood pressure changes.</div>
+        <div class="dosage-note">PT-141 is normally used <strong>on-demand</strong> — a single dose 45–90 min before activity, not every day. The titration table above is an optional gradual-tolerance approach; most people simply dose as needed. The FDA-approved on-demand dose (Vyleesi) is 1.75 mg SC, max 8 doses/month, so keep total exposure below that. Monitor for nausea, flushing, and transient blood pressure changes.</div>
       </div>
 
       <hr class="dosage-divider" />
 
       <!-- CJC-1295 No DAC -->
       <div class="dosage-section">
-        <div class="dosage-section-title">💊 CJC-1295 No DAC — 5 mg Vial</div>
+        <div class="dosage-section-title">💊 CJC-1295 No DAC — 10 mg Vial</div>
         <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 2.5 mg/mL (2,500 mcg/mL) &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 25 mcg &nbsp;|&nbsp;
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → 3.33 mg/mL (3,333 mcg/mL) &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
           <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp;
           <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
           <strong>Storage:</strong> Refrigerate; use within 4 weeks
@@ -2069,9 +2103,9 @@
           <table class="dosage-table">
             <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead>
             <tbody>
-              <tr><td>Weeks 1–2</td><td class="highlight">100 mcg (0.1 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
-              <tr><td>Weeks 3–4</td><td class="highlight">200 mcg (0.2 mg)</td><td>8 units</td><td>0.08 mL</td><td>Fasted, 30 min before sleep</td></tr>
-              <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>12 units</td><td>0.12 mL</td><td>Fasted — sleep or pre-training</td></tr>
+              <tr><td>Weeks 1–2</td><td class="highlight">100 mcg (0.1 mg)</td><td>3 units</td><td>0.03 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">150 mcg (0.15 mg)</td><td>4.5 units</td><td>0.045 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 5–12</td><td class="highlight">200 mcg (0.2 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted — sleep or pre-training</td></tr>
             </tbody>
           </table>
         </div>
@@ -2081,12 +2115,12 @@
           <table class="dosage-table">
             <thead><tr><th>Peptide</th><th>Dose / Injection</th><th>Units</th><th>Volume (mL)</th><th>Draw into same syringe?</th></tr></thead>
             <tbody>
-              <tr><td>CJC-1295 No DAC</td><td class="highlight">300 mcg</td><td>12 units</td><td>0.12 mL</td><td rowspan="2" style="color:var(--success);font-weight:600;">✓ Yes — draw CJC first, then Ipamorelin into the same syringe</td></tr>
-              <tr><td>Ipamorelin</td><td class="highlight">300 mcg</td><td>6 units</td><td>0.06 mL</td></tr>
+              <tr><td>CJC-1295 No DAC</td><td class="highlight">200 mcg</td><td>6 units</td><td>0.06 mL</td><td rowspan="2" style="color:var(--success);font-weight:600;">✓ Yes — draw CJC first, then Ipamorelin into the same syringe (12 units total)</td></tr>
+              <tr><td>Ipamorelin</td><td class="highlight">200 mcg</td><td>6 units</td><td>0.06 mL</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="dosage-note">Cycle: 12–16 weeks on, 4–8 weeks off. Take on an empty stomach — avoid food 2 hours before and 30 min after injecting. CJC-1295 acts as the GHRH signal and Ipamorelin acts as the GHRP pulse, together producing a stronger and more natural GH release than either alone. One 5 mg vial of CJC-1295 gives ~16 doses at 300 mcg.</div>
+        <div class="dosage-note">Cycle: 12–16 weeks on, 4–8 weeks off. Take on an empty stomach — avoid food 2 hours before and 30 min after injecting. CJC-1295 acts as the GHRH signal and Ipamorelin acts as the GHRP pulse, together producing a stronger and more natural GH release than either alone. One 10 mg vial of CJC-1295 gives ~50 doses at 200 mcg (or ~33 at 300 mcg).</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -2095,8 +2129,8 @@
       <div class="dosage-section">
         <div class="dosage-section-title">💊 Ipamorelin — 10 mg Vial</div>
         <div class="dosage-meta">
-          <strong>Reconstitution:</strong> Add 2.0 mL bacteriostatic water → 5.0 mg/mL (5,000 mcg/mL) &nbsp;|&nbsp;
-          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 50 mcg &nbsp;|&nbsp;
+          <strong>Reconstitution:</strong> Add 3.0 mL bacteriostatic water → 3.33 mg/mL (3,333 mcg/mL) &nbsp;|&nbsp;
+          <strong>Conversion:</strong> 1 unit = 0.01 mL ≈ 33.3 mcg &nbsp;|&nbsp;
           <strong>Frequency:</strong> 1–3× daily, fasted &nbsp;|&nbsp;
           <strong>Syringe:</strong> U-100 insulin &nbsp;|&nbsp;
           <strong>Storage:</strong> Refrigerate; use within 4 weeks
@@ -2107,13 +2141,13 @@
           <table class="dosage-table">
             <thead><tr><th>Phase</th><th>Dose / Injection</th><th>Units / Injection</th><th>Volume (mL)</th><th>Timing</th></tr></thead>
             <tbody>
-              <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>4 units</td><td>0.04 mL</td><td>Fasted, 30 min before sleep</td></tr>
-              <tr><td>Weeks 3–4</td><td class="highlight">250 mcg (0.25 mg)</td><td>5 units</td><td>0.05 mL</td><td>Fasted, 30 min before sleep</td></tr>
-              <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted — sleep or pre-training</td></tr>
+              <tr><td>Weeks 1–2</td><td class="highlight">200 mcg (0.2 mg)</td><td>6 units</td><td>0.06 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 3–4</td><td class="highlight">250 mcg (0.25 mg)</td><td>7.5 units</td><td>0.075 mL</td><td>Fasted, 30 min before sleep</td></tr>
+              <tr><td>Weeks 5–16</td><td class="highlight">300 mcg (0.3 mg)</td><td>9 units</td><td>0.09 mL</td><td>Fasted — sleep or pre-training</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="dosage-note">One 10 mg vial (at 5 mg/mL) gives ~33 doses at 300 mcg or 50 doses at 200 mcg. Cycle: 12–16 weeks on, 4–8 weeks off. Best stacked with CJC-1295 No DAC (see above). Ipamorelin is highly selective — minimal cortisol, prolactin, or appetite side effects compared to older GHRP peptides like GHRP-6.</div>
+        <div class="dosage-note">One 10 mg vial (at 3.33 mg/mL) gives ~33 doses at 300 mcg or 50 doses at 200 mcg. Cycle: 12–16 weeks on, 4–8 weeks off. Best stacked with CJC-1295 No DAC (see above). Ipamorelin is highly selective — minimal cortisol, prolactin, or appetite side effects compared to older GHRP peptides like GHRP-6.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -2125,12 +2159,12 @@
           <table class="dosage-table quick-ref-table">
             <thead><tr><th>Peptide</th><th>Vial Size</th><th>BAC Water</th><th>Concentration</th><th>Frequency</th><th>Starting Dose</th><th>Max Dose</th></tr></thead>
             <tbody>
-              <tr><td>Retatrutide</td><td>10 mg</td><td>1.0 mL</td><td>10.0 mg/mL</td><td>1×/week</td><td class="highlight">2 mg</td><td>12 mg</td></tr>
+              <tr><td>Retatrutide</td><td>10/20/30 mg†</td><td>3.0 mL</td><td>3.33–10 mg/mL</td><td>1×/week</td><td class="highlight">0.5 mg (15 units)</td><td>12 mg (120 units on 30 mg vial)</td></tr>
               <tr><td>GLOW Stack</td><td>70 mg</td><td>10.0 mL ⭐</td><td>7.0 mg/mL</td><td>Daily</td><td class="highlight">700 mcg (10 units)</td><td>2,100 mcg (30 units)</td></tr>
-              <tr><td>Wolverine Stack (BPC+TB)</td><td>20 mg</td><td>4.0 mL</td><td>5.0 mg/mL</td><td>Daily</td><td class="highlight">500 mcg (10 units)</td><td>1,000 mcg (20 units)</td></tr>
-              <tr><td>CJC-1295 No DAC</td><td>5 mg</td><td>2.0 mL</td><td>2.5 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">100 mcg (4 units)</td><td>300 mcg (12 units)</td></tr>
-              <tr><td>Ipamorelin</td><td>10 mg</td><td>2.0 mL</td><td>5.0 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">200 mcg (4 units)</td><td>300 mcg (6 units)</td></tr>
-              <tr><td>Tirzepatide</td><td>5 mg</td><td>10.0 mL</td><td>0.5 mg/mL</td><td>1×/week</td><td class="highlight">2.5 mg</td><td>15 mg</td></tr>
+              <tr><td>Wolverine Stack (BPC+TB)</td><td>20 mg</td><td>3.0 mL</td><td>6.67 mg/mL</td><td>Daily</td><td class="highlight">500 mcg (7.5 units)</td><td>1,000 mcg (15 units)</td></tr>
+              <tr><td>CJC-1295 No DAC</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">100 mcg (3 units)</td><td>300 mcg (9 units)</td></tr>
+              <tr><td>Ipamorelin</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>1–3×/day (fasted)</td><td class="highlight">200 mcg (6 units)</td><td>300 mcg (9 units)</td></tr>
+              <tr><td>Tirzepatide</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>1×/week</td><td class="highlight">2.5 mg (75 units)</td><td>15 mg (split; or stronger vial)</td></tr>
               <tr><td>PT-141</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>As needed</td><td class="highlight">500 mcg</td><td>2,000 mcg</td></tr>
               <tr><td>Melanotan II</td><td>10 mg</td><td>3.0 mL</td><td>3.33 mg/mL</td><td>Daily → 1–2×/week</td><td class="highlight">250 mcg</td><td>1,000–2,000 mcg</td></tr>
               <tr><td>GHK-Cu</td><td>50 mg</td><td>3.0 mL</td><td>16.67 mg/mL</td><td>5×/week or 3×/week</td><td class="highlight">1.0 mg</td><td>2.0 mg</td></tr>
@@ -2139,7 +2173,7 @@
             </tbody>
           </table>
         </div>
-        <div class="dosage-note" style="margin-top:10px;">⭐ <strong>GLOW Stack is the only peptide reconstituted with 10 mL BAC water.</strong> All other peptides use the standard 3 mL. The extra dilution is deliberate — the GLOW blend can sting noticeably at 3 mL; 10 mL reduces this significantly on injection.</div>
+        <div class="dosage-note" style="margin-top:10px;">⭐ <strong>GLOW Stack is the only peptide reconstituted with 10 mL BAC water.</strong> Every other peptide uses the standard 3 mL. The extra GLOW dilution is deliberate — the blend can sting noticeably at 3 mL; 10 mL reduces this significantly on injection.<br>† <strong>Retatrutide:</strong> comes in 10, 20 and 30 mg vials. Keep the water at 3 mL and step up to a stronger vial as you titrate — 10 mg (3.33 mg/mL) for 0.5–2 mg, 20 mg (6.67 mg/mL) for 3–6 mg, 30 mg (10 mg/mL) for 8–12 mg. This keeps every injection at a low unit count. See the full Retatrutide table above.</div>
       </div>
 
       <hr class="dosage-divider" />
@@ -2806,31 +2840,33 @@ function drawSyringe(targetUnits, prefix) {
 
 // ─── PEPTIDE PRESETS ──────────────────────────────────────────────────
 const PRESETS = [
-  // ── Primary / Most Used ──
-  { name:"Retatrutide",   full:"Retatrutide (RETA) — Triple Agonist",       type:"GLP-1/GIP/Glucagon",         vial:10, water:3,  dose:0.5,  doseRange:"0.5–12 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution." },
-  { name:"GLOW Stack",    full:"BPC-157 + TB-500 + GHK-Cu Blend",           type:"Healing/Skin/Recovery Blend",vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL BAC water (not the standard 3 mL) — the higher dilution significantly reduces injection sting. This is the only peptide in the protocol that uses 10 mL." },
-  { name:"Wolverine Stack",full:"BPC-157 + TB-500 Blend",                   type:"Healing/Recovery Blend",     vial:20, water:3,  dose:1.0,  doseRange:"1 mg",           freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 3 mL BAC water gives ~6.67 mg/mL — 1 mg dose = 15 units on a U-100 syringe." },
-  { name:"Tirzepatide",   full:"Tirzepatide (GIP/GLP-1)",                   type:"GLP-1/GIP / Metabolic",      vial:5,  water:3,  dose:2.5,  doseRange:"2.5–15 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Dual GLP-1/GIP agonist. Titrate every 4 weeks." },
-  { name:"PT-141",        full:"PT-141 (Bremelanotide)",                    type:"Sexual Health",               vial:10, water:3,  dose:0.5,  doseRange:"0.5–2 mg",       freq:"As needed",          route:"Subcutaneous",          storage:"Refrigerate after reconstitution", notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
-  { name:"Melanotan II",  full:"Melanotan II",                               type:"Tanning/Melanocortin",        vial:10, water:3,  dose:0.25, doseRange:"0.25–1 mg",      freq:"Daily (loading)",    route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
-  { name:"GHK-Cu",        full:"GHK-Cu (Copper Peptide)",                   type:"Skin/Anti-aging/Collagen",    vial:50, water:3,  dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous or topical",storage:"Refrigerate; use within 4 weeks",  notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
-  { name:"MOTS-C",        full:"MOTS-C (Mitochondrial-derived Peptide)",    type:"Metabolic/Longevity",         vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",  freq:"Once daily",         route:"Subcutaneous",          storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
-  { name:"AOD-9604",      full:"AOD-9604 (Tyr-hGH Fragment 177–191)",       type:"Fat Metabolism/Lipolysis",    vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",    freq:"Once daily (fasted)", route:"Subcutaneous",          storage:"Refrigerate; use within 30–45 days",  notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
-  { name:"SLU-PP-332",    full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",        type:"Exercise Mimetic/Metabolic",  vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",  freq:"1–2x daily",         route:"Subcutaneous",          storage:"Refrigerate; use within 30 days",  notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
-  // ── Others ──
-  { name:"BPC-157",       full:"Body Protection Compound 157",              type:"Healing/Recovery",            vial:5,  water:3,  dose:0.25, doseRange:"0.25–0.5 mg",   freq:"1–2x daily",         route:"Subcutaneous or IM",    storage:"Refrigerate; use within 4 weeks",  notes:"Often used for gut health, tendon and ligament repair." },
-  { name:"TB-500",        full:"Thymosin Beta-4",                           type:"Recovery/Anti-inflammatory",  vial:5,  water:3,  dose:2.0,  doseRange:"2–2.5 mg",       freq:"2x weekly (loading)",route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Systemic recovery peptide. Slightly larger injection volumes typical." },
-  { name:"Ipamorelin",    full:"Ipamorelin",                                type:"GH Secretagogue",             vial:10, water:3,  dose:0.2,  doseRange:"0.2–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 200 mcg dose = 6 units, 300 mcg dose = 9 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
-  { name:"CJC-1295",     full:"CJC-1295 No DAC",                           type:"GH Secretagogue / GHRH",      vial:5,  water:3,  dose:0.1,  doseRange:"0.1–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"GHRH analogue (No DAC = short-acting). 5 mg vial + 3 mL BAC water = 1.67 mg/mL (1,667 mcg/mL). 100 mcg dose = 6 units, 200 mcg = 12 units, 300 mcg = 18 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
-  { name:"Sermorelin",    full:"Sermorelin",                                type:"GHRH Analogue",               vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",    freq:"Once daily (bedtime)",route:"Subcutaneous",         storage:"Refrigerate; use within 30 days",  notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
-  { name:"Tesamorelin",   full:"Tesamorelin",                               type:"GHRH / Visceral Fat",         vial:2,  water:3,  dose:2.0,  doseRange:"2 mg/day",       freq:"Once daily",         route:"Subcutaneous (abdomen)",storage:"Refrigerate; use within 3 weeks",  notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
+  { name:"Retatrutide",   full:"Retatrutide (RETA) — Triple Agonist",       type:"GLP-1/GIP/Glucagon",         cat:"Weight Management",       tip:"Triple agonist (GLP-1/GIP/glucagon) for significant weight loss.",           vial:10, water:3,  dose:0.5,  doseRange:"0.5–12 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Triple agonist (GLP-1, GIP, glucagon). Potent weight-loss peptide in late-stage clinical trials. Start at 0.5 mg/week and titrate slowly every 4 weeks. Stronger effect than tirzepatide — titrate with caution. Sold in 10/20/30 mg vials: keep 3 mL water and step up to a stronger vial as you climb (10 mg for 0.5–2 mg, 20 mg for 3–6 mg, 30 mg for 8–12 mg) to keep injection volume low. See the Retatrutide dosage table for the full ladder." },
+  { name:"Tirzepatide",   full:"Tirzepatide (GIP/GLP-1)",                   type:"GLP-1/GIP / Metabolic",      cat:"Weight Management",       tip:"Dual GLP-1/GIP agonist for weight loss and glucose control.",                 vial:10, water:3,  dose:2.5,  doseRange:"2.5–15 mg/wk",  freq:"Once weekly",        route:"Subcutaneous",          storage:"Refrigerate; use within 28 days",  notes:"Dual GLP-1/GIP agonist. 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 2.5 mg dose = 75 units, 5 mg = 150 units. Doses above ~3.3 mg exceed one U-100 syringe — split into two injections, or use a higher-strength vial (also with 3 mL) as you titrate. Titrate every 4 weeks." },
+  { name:"Wolverine Stack",full:"BPC-157 + TB-500 Blend",                   type:"Healing/Recovery Blend",     cat:"Recovery & Repair",       tip:"BPC-157 + TB-500 — accelerated injury and tissue recovery.",                  vial:20, water:3,  dose:1.0,  doseRange:"1 mg",           freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Classic BPC-157 + TB-500 stack for accelerated healing and recovery. 20 mg vial with 3 mL BAC water gives ~6.67 mg/mL — 1 mg dose = 15 units on a U-100 syringe." },
+  { name:"GLOW Stack",    full:"BPC-157 + TB-500 + GHK-Cu Blend",           type:"Healing/Skin/Recovery Blend",cat:"Longevity & Skin Care",   tip:"GHK-Cu + TB-500 + BPC-157 — skin, hair and tissue repair.",                   vial:70, water:10, dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Combination healing blend. BPC-157 for gut/tendon repair, TB-500 for systemic recovery, GHK-Cu for collagen synthesis and skin regeneration. Use 10 mL BAC water (not the standard 3 mL) — the higher dilution significantly reduces injection sting. This is the only peptide in the protocol that uses 10 mL." },
+  { name:"BPC-157",       full:"Body Protection Compound 157",              type:"Healing/Recovery",            cat:"Recovery & Repair",       tip:"Gut, tendon and ligament repair; works locally.",                             vial:5,  water:3,  dose:0.25, doseRange:"0.25–0.5 mg",   freq:"1–2x daily",         route:"Subcutaneous or IM",    storage:"Refrigerate; use within 4 weeks",  notes:"Often used for gut health, tendon and ligament repair." },
+  { name:"TB-500",        full:"Thymosin Beta-4",                           type:"Recovery/Anti-inflammatory",  cat:"Recovery & Repair",       tip:"Systemic recovery, flexibility and connective-tissue resilience.",            vial:10, water:3,  dose:2.0,  doseRange:"2–2.5 mg",       freq:"2x weekly (loading)",route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Systemic recovery peptide. 10 mg vial + 3 mL BAC water = 3.33 mg/mL. 2 mg dose = 60 units, 2.5 mg = 75 units. Larger injection volumes are normal for TB-500." },
+  { name:"CJC-1295",     full:"CJC-1295 No DAC",                           type:"GH Secretagogue / GHRH",      cat:"Body Comp",               tip:"GHRH analogue — boosts natural growth-hormone release.",                      vial:10, water:3,  dose:0.2,  doseRange:"0.1–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"GHRH analogue (No DAC = short-acting). 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 100 mcg dose = 3 units, 200 mcg = 6 units, 300 mcg = 9 units. Take fasted, 30 min before sleep or training. Commonly stacked with Ipamorelin 1:1 for amplified GH pulse." },
+  { name:"Ipamorelin",    full:"Ipamorelin",                                type:"GH Secretagogue",             cat:"Body Comp",               tip:"Selective GH secretagogue; pairs with CJC-1295.",                             vial:10, water:3,  dose:0.2,  doseRange:"0.2–0.3 mg",    freq:"1–3x daily (fasted)", route:"Subcutaneous",         storage:"Refrigerate; use within 4 weeks",  notes:"Selective GH secretagogue with minimal side effects. 10 mg vial + 3 mL BAC water = 3.33 mg/mL (3,333 mcg/mL). 200 mcg dose = 6 units, 300 mcg dose = 9 units. Best taken fasted — ideally 30 min before sleep or training. Stack with CJC-1295 for synergistic GH release." },
+  { name:"Tesamorelin",   full:"Tesamorelin",                               type:"GHRH / Visceral Fat",         cat:"Body Comp",               tip:"GHRH analogue that targets visceral (belly) fat.",                            vial:2,  water:3,  dose:2.0,  doseRange:"2 mg/day",       freq:"Once daily",         route:"Subcutaneous (abdomen)",storage:"Refrigerate; use within 3 weeks",  notes:"FDA-approved for HIV-associated lipodystrophy. Reduces visceral adipose tissue." },
+  { name:"Sermorelin",    full:"Sermorelin",                                type:"GHRH Analogue",               cat:"Body Comp",               tip:"GHRH analogue — gentle natural GH support at bedtime.",                       vial:3,  water:3,  dose:0.2,  doseRange:"0.2–0.5 mg",    freq:"Once daily (bedtime)",route:"Subcutaneous",         storage:"Refrigerate; use within 30 days",  notes:"Best taken on an empty stomach at bedtime. Stimulates natural GH release." },
+  { name:"Selank",        full:"Selank (Anxiolytic Nootropic)",             type:"Nootropic / Anxiolytic",      cat:"Cognitive",               tip:"Anxiolytic nootropic — calm focus and stress resilience.",                    vial:10, water:3,  dose:0.3,  doseRange:"250–500 mcg",    freq:"Once daily",         route:"Subcutaneous or intranasal", storage:"Refrigerate; use within 3–4 weeks", notes:"Synthetic analogue of the immunopeptide tuftsin with anxiolytic and nootropic effects — eases anxiety and supports calm focus without sedation. 10 mg vial + 3 mL BAC water = 3.33 mg/mL. 250 mcg = 7.5 units, 500 mcg = 15 units. Commonly run 4 weeks on / 4 weeks off. Also available as a nasal spray." },
+  { name:"Semax",         full:"Semax (Nootropic / Neuroprotective)",       type:"Nootropic / Neuroprotective", cat:"Cognitive",               tip:"Nootropic — focus, memory and neuroprotection.",                              vial:10, water:3,  dose:0.3,  doseRange:"200–600 mcg",    freq:"1–2x daily",         route:"Subcutaneous or intranasal", storage:"Refrigerate; use within 3–4 weeks", notes:"ACTH(4–10) fragment with nootropic and neuroprotective effects — supports focus, memory and BDNF. 10 mg vial + 3 mL BAC water = 3.33 mg/mL. 300 mcg = 9 units, 600 mcg = 18 units. Take in the morning / early day to avoid disrupting sleep. Also available as a nasal spray." },
+  { name:"MOTS-C",        full:"MOTS-C (Mitochondrial-derived Peptide)",    type:"Metabolic/Longevity",         cat:"Longevity & Skin Care",   tip:"Mitochondrial peptide for metabolic health and endurance.",                   vial:20, water:3,  dose:0.2,  doseRange:"200–1,000 mcg",  freq:"Once daily",         route:"Subcutaneous",          storage:"Freeze lyophilized; refrigerate after recon, use within 7 days", notes:"Mitochondria-derived peptide. Improves insulin sensitivity, metabolic flexibility, and exercise capacity. Titrate from 200 mcg/day, escalating every 2 weeks up to 1,000 mcg. Longevity and metabolic health protocols." },
+  { name:"GHK-Cu",        full:"GHK-Cu (Copper Peptide)",                   type:"Skin/Anti-aging/Collagen",    cat:"Longevity & Skin Care",   tip:"Copper peptide — collagen, skin quality and healing.",                        vial:50, water:3,  dose:1.0,  doseRange:"1–2 mg",         freq:"Daily or 2x weekly", route:"Subcutaneous or topical",storage:"Refrigerate; use within 4 weeks",  notes:"Copper-binding peptide that stimulates collagen synthesis, wound healing, and skin regeneration. Can also be used topically. Often combined in GLOW Stack." },
+  { name:"Epithalon",     full:"Epithalon / Epitalon (Telomerase Peptide)", type:"Longevity / Telomere",        cat:"Longevity & Skin Care",   tip:"Telomerase-activating longevity peptide; short annual cycles.",               vial:10, water:3,  dose:5.0,  doseRange:"5–10 mg/day",    freq:"Daily (short cycle)",route:"Subcutaneous",          storage:"Freeze lyophilized; refrigerate after recon; use within 2–3 weeks", notes:"Tetrapeptide that activates telomerase and supports the pineal gland / sleep-wake regulation. Run as a short course — 5–10 mg/day for 10–20 consecutive days, repeated 2–3× per year. At 10 mg vial + 3 mL = 3.33 mg/mL a 5 mg dose = 150 units (split into 2) and 10 mg = 300 units (split into 3). If you prefer fewer injections, reconstitute in 1–1.5 mL and re-check the units in the Calculator. Inject at night, at least 2 h after food." },
+  { name:"AOD-9604",      full:"AOD-9604 (Tyr-hGH Fragment 177–191)",       type:"Fat Metabolism/Lipolysis",    cat:"Weight Management",       tip:"hGH fragment — fat loss without affecting blood sugar.",                      vial:5,  water:3,  dose:0.3,  doseRange:"300–500 mcg",    freq:"Once daily (fasted)", route:"Subcutaneous",          storage:"Refrigerate; use within 30–45 days",  notes:"Synthetic C-terminal fragment of human growth hormone. Supports fat breakdown (lipolysis) without affecting IGF-1 or blood sugar. Inject fasted in the morning for best effect. Titrate from 300 mcg for 4 weeks then increase to 500 mcg." },
+  { name:"SLU-PP-332",    full:"SLU-PP-332 (ERRα/δ/γ Pan-Agonist)",        type:"Exercise Mimetic/Metabolic",  cat:"Body Comp",               tip:"Exercise mimetic — endurance benefits (research-only).",                      vial:5,  water:3,  dose:0.5,  doseRange:"500–1,000 mcg",  freq:"1–2x daily",         route:"Subcutaneous",          storage:"Refrigerate; use within 30 days",  notes:"Exercise mimetic targeting estrogen-related receptors (ERRα/δ/γ). Mimics endurance exercise at the cellular level. Research-stage compound — no human clinical trial data. Titrate from 500 mcg/day; split into 2 daily doses for best coverage. For research purposes only." },
+  { name:"Melanotan II",  full:"Melanotan II",                               type:"Tanning/Melanocortin",        cat:"Reproduction & Tanning",  tip:"Melanocortin agonist — tanning and libido.",                                  vial:10, water:3,  dose:0.25, doseRange:"0.25–1 mg",      freq:"Daily (loading)",    route:"Subcutaneous",          storage:"Refrigerate; use within 4 weeks",  notes:"Start at 0.25 mg to assess tolerance. Can cause nausea and facial flushing. Maintenance dose once tanned." },
+  { name:"PT-141",        full:"PT-141 (Bremelanotide)",                    type:"Sexual Health",               cat:"Reproduction & Tanning",  tip:"Bremelanotide — libido and sexual arousal, on-demand.",                       vial:10, water:3,  dose:0.5,  doseRange:"0.5–2 mg",       freq:"As needed",          route:"Subcutaneous",          storage:"Refrigerate after reconstitution", notes:"Use 45–90 min before. Start low to assess tolerance. Can cause flushing and nausea." },
 ];
 
 function renderPeptidePills() {
   const el = document.getElementById('peptide-pills-list');
-  el.innerHTML = PRESETS.map((p, i) =>
-    `<button class="peptide-pill" onclick="showPeptide(${i})" id="ppill-${i}">${p.name}</button>`
-  ).join('');
+  el.innerHTML = PRESETS.map((p, i) => {
+    const tip = p.cat ? `${p.cat} — ${p.tip || p.type}` : (p.tip || p.type || '');
+    return `<button class="peptide-pill" onclick="showPeptide(${i})" id="ppill-${i}" data-tip="${tip}" title="${tip}">${p.name}</button>`;
+  }).join('');
 }
 
 function showPeptide(idx) {
@@ -2843,8 +2879,9 @@ function showPeptide(idx) {
   el.innerHTML = `
     <hr class="divider"/>
     <div style="margin-bottom:14px;">
-      <div style="font-size:1.1rem;font-weight:700;">${p.name} <span class="tag tag-blue" style="margin-left:6px;">${p.type}</span></div>
+      <div style="font-size:1.1rem;font-weight:700;">${p.name} <span class="tag tag-blue" style="margin-left:6px;">${p.type}</span>${p.cat ? `<span class="pep-cat-chip">${p.cat}</span>` : ''}</div>
       <div style="font-size:0.82rem;color:var(--text2);margin-top:3px;">${p.full}</div>
+      ${p.tip ? `<div style="font-size:0.82rem;color:var(--ink-muted);margin-top:6px;">${p.tip}</div>` : ''}
     </div>
     <div class="result-stats" style="grid-template-columns:repeat(2,1fr);margin-bottom:14px;">
       <div class="stat-box"><div class="stat-label">Typical Vial Size</div><div class="stat-val" style="font-size:1rem;">${p.vial} mg</div></div>
